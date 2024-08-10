@@ -78,10 +78,16 @@ function toggleStyle() {
 
 function applyStyle(style) {
     localStorage.setItem('style', isDarkMode ? 'dark' : 'light');
-    document.getElementById('toggle-dark-mode').innerText = isDarkMode ? 'Light Mode' : 'Dark Mode';
+    if (document.getElementById('toggle-dark-mode'))
+        document.getElementById('toggle-dark-mode').innerText = isDarkMode ? 'Light Mode' : 'Dark Mode';
     for (const [key, value] of Object.entries(style)) {
         document.documentElement.style.setProperty(key, value);
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('toggle-dark-mode'))
+        document.getElementById('toggle-dark-mode').innerText = isDarkMode ? 'Light Mode' : 'Dark Mode';
+});
 
 applyStyle(isDarkMode ? darkMode : lightMode);
