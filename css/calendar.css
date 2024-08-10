@@ -1,0 +1,130 @@
+/* Calendar */
+.calendar {
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 10px;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+/* FullCalendar Container */
+.fc {
+    max-width: 100%;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+}
+
+/* Header Toolbar */
+.fc-toolbar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.fc-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.fc-button:hover {
+    background-color: #0056b3;
+}
+
+.fc-button:active {
+    background-color: #004494;
+}
+
+.fc-button:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Calendar Table */
+.fc table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.fc th, .fc td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    background-color: #fafafa;
+    transition: background-color 0.3s;
+}
+
+.fc th {
+    background-color: #f1f1f1;
+    font-weight: bold;
+}
+
+.fc-day:hover {
+    background-color: #f5f5f5;
+}
+
+.fc-day-today {
+    background-color: #e9ecef;
+}
+
+/* Event Styling */
+.fc-event {
+    background-color: #28a745;
+    color: #fff;
+    border-radius: 4px;
+    padding: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.fc-event:hover {
+    background-color: #218838;
+}
+
+.fc-event:active {
+    background-color: #1e7e34;
+}
+
+/* Day Grid */
+.fc-daygrid-event {
+    margin-bottom: 5px;
+}
+
+/* Custom Scrollbar for Overflow */
+.fc-scroller {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #007bff #fafafa;
+}
+
+.fc-scroller::-webkit-scrollbar {
+    width: 8px;
+}
+
+.fc-scroller::-webkit-scrollbar-track {
+    background: #fafafa;
+}
+
+.fc-scroller::-webkit-scrollbar-thumb {
+    background-color: #007bff;
+    border-radius: 4px;
+}
+
+.fc-scroller::-webkit-scrollbar-thumb:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .fc-toolbar {
+        flex-direction: column;
+    }
+}

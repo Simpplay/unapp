@@ -1,0 +1,79 @@
+/* Form Elements */
+select#university_selector,
+textarea#textInput {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: #fafafa;
+    box-sizing: border-box;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+select#university_selector:focus,
+textarea#textInput:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Button container */
+#saveAndLoadGroup {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 400px;
+    /* Ensure it aligns with the select and textarea */
+    margin-top: 15px;
+    /* Space between the Enviar button and button group */
+}
+
+button#submitBtn {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button#submitBtn:hover {
+    background-color: #0056b3;
+}
+
+button#submitBtn:active {
+    background-color: #004494;
+}
+
+button#saveBtn,
+button#loadBtn {
+    flex: 1;
+    /* Make both buttons take equal space */
+    margin: 0 5px;
+    /* Add space between buttons */
+    padding: 10px;
+    background-color: #28a745;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+
+button#saveBtn:hover,
+button#loadBtn:hover {
+    background-color: #218838;
+}
+
+button#saveBtn:active,
+button#loadBtn:active {
+    background-color: #1e7e34;
+}
