@@ -61,9 +61,11 @@
     border-collapse: collapse;
 }
 
-.fc th, .fc td {
+.fc th,
+.fc td {
     border: 1px solid var(--other-border-color);
-    padding: 10px;
+    padding: 0px;
+    /* Size */
     text-align: center;
     background-color: var(--other-bg-color);
     transition: background-color 0.3s;

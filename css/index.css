@@ -43,12 +43,24 @@ body {
   align-items: flex-start;
   min-height: 100vh;
   box-sizing: border-box;
+  /* Add padding to the top of the body content to avoid overlap with fixed header */
+  padding-top: 40px;
+
+  position: absolute;
+  top: 20px;
+  left: 0px;
+  bottom: 20px;
+  right: 20px;
+  overflow-y: scroll;
+  overflow-x: auto;
 }
+
+
 
 /* Header Styles */
 .header {
   width: 100%;
-  padding: 20px;
+  padding: 15px;
   background-color: var(--button-bg-color);
   color: var(--button-font-color);
   display: flex;
@@ -58,7 +70,9 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000; /* Ensures it stays above other content */
+  right: 20px;
+  z-index: 1000;
+  /* Ensures it stays above other content */
 }
 
 .header h1 {
@@ -84,18 +98,13 @@ body {
   background-color: var(--save-and-load-active-color);
 }
 
-/* Add padding to the top of the body content to avoid overlap with fixed header */
-body {
-  padding-top: 80px; /* Adjust based on the height of your header */
-}
-
 
 /* Container */
 
 .container {
   width: 90%;
   max-width: 600px;
-  margin: 20px auto;
+  margin: 20px;
   padding: 20px;
   background-color: var(--container-bg-color);
   box-shadow: var(--box-shadow);
@@ -151,6 +160,7 @@ button:active {
 
 /* Responsive Design */
 @media (max-width: 1000px) {
+
   /* Stack container and calendarContainer vertically */
   body {
     flex-direction: column;
@@ -170,7 +180,9 @@ button:active {
 }
 
 @media (max-width: 768px) {
-  .container, .calendarContainer {
+
+  .container,
+  .calendarContainer {
     width: 95%;
   }
 

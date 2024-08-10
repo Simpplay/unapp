@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function updateCalendarEvent(c) {
-  removeCalendarEventsFromCourse(c)
+  removeCalendarEventsFromCourse(c);
   c.course_groups.forEach(g => {
     var groupSchedule = [];
     g.schedule.forEach(s => {

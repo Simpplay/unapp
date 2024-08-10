@@ -1,3 +1,11 @@
+function changeGroupColor(course_id, color) {
+    var c = course.fromID(course_id);
+    c.color = color;
+    Array.from(document.getElementsByClassName('course')).filter(a => a.getAttribute('course-id') == course_id)[0].parentElement.style.backgroundColor = color;
+    updateCalendarEvent(c);
+    selected_university.goToCombination(selected_university.actualCombination);
+}
+
 class course {
     static defaultVariables = {
         "course_name": (c, value) => {
@@ -28,8 +36,8 @@ class course {
                 <div class="courseName">${c.course_name}</div>
                 <div class="courseId">${c.course_id}</div>
                 ${c.course_credits ? `<div class="courseCredits">Creditos: ${c.course_credits}</div>` : ''}
-                ${color_palete ? `<input type="color" class="courseColorPalete" value="${c.color}" onchange="course.fromID('${c.course_id}').color = event.target.value;Array.from(document.getElementsByClassName('course')).filter(a => a.getAttribute('course-id') == '${c.course_id}')[0].parentElement.style.backgroundColor=event.target.value;updateCalendarEvent(course.fromID('${c.course_id}'))"></input>` : ''}
-                ${color_palete ? `<button onclick="course.fromID('${c.course_id}').color = randomColor();Array.from(document.getElementsByClassName('course')).filter(a => a.getAttribute('course-id') == '${c.course_id}')[0].parentElement.style.backgroundColor=randomColor();updateCalendarEvent(course.fromID('${c.course_id}'))">New Color</button>` : ''}
+                ${color_palete ? `<input type="color" class="courseColorPalete" value="${c.color}" onchange="changeGroupColor('${c.course_id}', event.target.value)"></input>` : ''}
+                ${color_palete ? `<button onclick="changeGroupColor('${c.course_id}', randomColor())">New Color</button>` : ''}
                 <ul class="courseGroups">
                     ${c.course_groups.map(g => group.getAsHTML(g)).join('')}
                 </ul>
@@ -52,6 +60,10 @@ class course {
     }
 
     addGroup(group) {
+        if (group.schedule.length == 0) {
+            console.log('Empty group detected: ', group);
+            return;
+        }
         group.parent_course_id = this.course_id;
         this.course_groups.push(group);
         updateCalendarEvent(this);
@@ -103,6 +115,25 @@ class group {
         this.group_quota = group_quota;
         this.classroom = classroom;
         this.schedule = schedule;
+        this.disabled = false;
+    }
+
+    getColor() {
+        return this.disabled ? '#808080' : getComputedStyle(document.querySelector(':root')).getPropertyValue('--settings-bg-color');
+    }
+
+    disableGroup(dontChange = false) {
+        if (!dontChange) this.disabled = !this.disabled;
+        const setBackgroundColor = (e) => {
+            e.style.backgroundColor = this.getColor();
+            Array.from(e.children).forEach(child => {
+                setBackgroundColor(child);
+            });
+        }
+
+        Array.from(document.getElementsByClassName('group')).filter(c => c.getAttribute('group-id') == this.group_id).forEach(gE => {
+            setBackgroundColor(gE);
+        });
     }
 
     parseVariables(variables) {

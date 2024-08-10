@@ -147,13 +147,10 @@ class university {
                 showCloseButton: true,
                 didOpen: () => {
                     Array.from(document.getElementsByClassName('group')).forEach(e => {
+                        c.course_groups.forEach(g => g.disableGroup(true));
                         e.onclick = () => {
                             if (DEBUG) console.log(e)
-                            const calendarEvents = getCalendarEventsByGroupID(e.getAttribute('group-id'), c.course_id);
-                            calendarEvents.forEach(e => {
-                                const newEvent = mainCalendar.addEvent(e);
-                                this.allEvents.push(newEvent);
-                            });
+                            c.getGroup(e.getAttribute('group-id')).disableGroup();
                         };
                     });
                 }
@@ -214,6 +211,7 @@ class university {
         // mainCalendar.getEvents().forEach(e => e.remove());
 
         // Add new events for the selected combination
+        if (c === undefined) return;
         c.groups.forEach(g => {
             const calendarEvents = getCalendarEventsByGroupID(g.group_id, g.parent_course_id);
             calendarEvents.forEach(e => {

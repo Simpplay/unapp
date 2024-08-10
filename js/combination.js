@@ -104,10 +104,17 @@ function getCombinationSettingsHTML(config = default_combination_configurations)
 }
 
 class Combination {
-    constructor(groups = [], score = 0) {
+    constructor(groups = []) {
         this.groups = groups;
-        this.score = score;
-        this.scoreDetails = {};
+        this.score = 0;
+        this.scoreDetails = {
+            lunch_time: [],
+            free_days: [],
+            range: [],
+            overlap: [],
+            max_courses_per_day: [],
+            max_holes_per_day: []
+        };
     }
 
     /**
@@ -141,29 +148,36 @@ class Combination {
 
     static generateCombinationsFromCourses(courses, config = default_combination_configurations) {
         const groups = courses.map(c => c.course_groups);
-        var mapped = [];
-        var combinations = Combination.generateCombinations(groups);
+        const combinations = Combination.generateCombinations(groups).map(c => new Combination(c));
+        const separated = {};
+
+        // Evaluate score and organize combinations by score
         combinations.forEach(c => {
-            mapped.push(new Combination(c, this.isValidCombination(c, 0, config)));
+            const score = Combination.isValidCombination(c, 0, config);
+            c.score = score;
+            if (!separated[score]) separated[score] = [];
+            separated[score].push(c);
         });
-        mapped.sort((a, b) => b.score - a.score);
-        return mapped;
+
+        // Flatten, shuffle, and sort combinations
+        let result = [];
+        Object.values(separated).forEach(value => {
+            shuffleArray(value);
+            result.push(...value);
+        });
+
+        result = result.filter(c => c.score >= -500);
+
+        // Sort by score in descending order
+        result.sort((a, b) => b.score - a.score);
+        return result;
     }
 
-    static isValidCombination(c, score, config = default_combination_configurations) {
-        // Initialize scoreDetails
-        c.scoreDetails = c.scoreDetails || {
-            lunch_time: [],
-            free_days: [],
-            range: [],
-            overlap: [],
-            max_courses_per_day: [],
-            max_holes_per_day: []
-        };
-    
+
+    /*static isValidCombination(c, score, config = default_combination_configurations) {
         const allTimes = [];
-    
-        for (const group of c) {
+
+        for (const group of c.groups) {
             for (const { schedule_day, schedule_time } of group.schedule) {
                 const day = schedule_day.toLowerCase();
                 allTimes.push({
@@ -173,14 +187,14 @@ class Combination {
                 });
             }
         }
-    
+
         // Sort allTimes by start time for easier processing
         allTimes.sort((a, b) => a.start - b.start);
-    
+
         // Filtering criteria
         for (const entry of allTimes) {
             const { day, start, end } = entry;
-    
+
             // Check overlaps with lunch time
             if (config.lunch_time.start !== '00:00' && config.lunch_time.end !== '00:00') {
                 const lunchStart = moment(config.lunch_time.start, 'HH:mm');
@@ -190,13 +204,13 @@ class Combination {
                     score -= 1;
                 }
             }
-    
+
             // Check overlaps with free days
             if (config.free_days.includes(day)) {
                 c.scoreDetails.free_days.push(day);
                 score -= 2;
             }
-    
+
             // Check overlaps with range
             const rangeStart = moment(config.range.start, 'HH:mm');
             const rangeEnd = moment(config.range.end, 'HH:mm');
@@ -205,23 +219,23 @@ class Combination {
                 score -= 3;
             }
         }
-    
+
         // Additional filtering by day
         const days = {};
-    
+
         // Group times by day to check day-specific constraints
         for (const entry of allTimes) {
             const { day, start, end } = entry;
             if (!days[day]) days[day] = [];
             days[day].push({ start, end });
         }
-    
+
         Object.keys(days).forEach(day => {
             const times = days[day];
-    
+
             // Sort times by start time to check for overlaps
             times.sort((a, b) => a.start - b.start);
-    
+
             // Check for overlapping times within the same day
             for (let i = 1; i < times.length; i++) {
                 const previousEnd = times[i - 1].end;
@@ -232,13 +246,13 @@ class Combination {
                     break; // Only penalize once per overlap occurrence
                 }
             }
-    
+
             // Check max courses per day
             if (config.max_courses_per_day !== -1 && times.length > config.max_courses_per_day) {
                 c.scoreDetails.max_courses_per_day.push(day);
                 score -= 20;
             }
-    
+
             // Calculate holes and check max holes per day
             const holes = [];
             for (let i = 1; i < times.length; i++) {
@@ -253,13 +267,103 @@ class Combination {
                 score -= 10;
             }
         });
-    
+        return score;
+    }*/
+
+    static isValidCombination(c, score = 0, config = default_combination_configurations) {
+        const groups = c.groups;
+
+        const pointsPerError = {
+            lunch_time: 1,
+            free_days: 2,
+            range: 3,
+            max_courses_per_day: 20,
+            max_holes_per_day: 10,
+            overlap: 500,
+        };
+
+        const checkOverlap = (start1, end1, start2, end2, gran = "hour", inc = "[]") => {
+            if (!(start1 instanceof moment)) start1 = moment(start1, 'HH:mm');
+            if (!(end1 instanceof moment)) end1 = moment(end1, 'HH:mm').add(-1, 'minute');
+            if (!(start2 instanceof moment)) start2 = moment(start2, 'HH:mm');
+            if (!(end2 instanceof moment)) end2 = moment(end2, 'HH:mm').add(-1, 'minute');
+
+            // check range1 is between range2
+            const startFirst = start1.isBetween(start2, end2, gran, inc)
+            const endFirst = end1.isBetween(start2, end2, gran, inc)
+
+            // check range2 is between range1
+            const startLast = start2.isBetween(start1, end1, gran, inc)
+            const endLast = end2.isBetween(start1, end1, gran, inc)
+
+            return startFirst || endFirst || startLast || endLast
+        }
+
+        const allSchedules = {};
+        Object.keys(daysOfWeek).forEach(day => allSchedules[day] = []);
+
+        groups.forEach(g => {
+            if (g.disabled) score = -1000;
+            g.schedule.forEach(s => {
+                if (g.schedule_day in config.free_days) {
+                    score -= pointsPerError.free_days;
+                    c.scoreDetails.free_days.push(g.schedule_day);
+                }
+
+                if (!checkOverlap(s.schedule_time.start, s.schedule_time.end, config.range.start, config.range.end)) {
+                    score -= pointsPerError.range;
+                    c.scoreDetails.range.push(g.schedule_day);
+                }
+
+                // Check overlaps with lunch time
+                if (config.lunch_time.start !== '00:00' && config.lunch_time.end !== '00:00') {
+                    if (checkOverlap(s.schedule_time.start, s.schedule_time.end, config.lunch_time.start, config.lunch_time.end)) {
+                        score -= pointsPerError.lunch_time;
+                        c.scoreDetails.lunch_time.push(g.schedule_day);
+                    }
+                }
+
+                // Check overlaps with other schedules
+                allSchedules[s.schedule_day].forEach(other => {
+                    if (checkOverlap(s.schedule_time.start, s.schedule_time.end, other.schedule_time.start, other.schedule_time.end)) {
+                        score -= pointsPerError.overlap;
+                        c.scoreDetails.overlap.push(g.schedule_day);
+                    }
+                });
+
+                allSchedules[s.schedule_day].push(s);
+                if (config.max_courses_per_day != -1 && allSchedules[s.schedule_day].length > config.max_courses_per_day) {
+                    score -= pointsPerError.max_courses_per_day;
+                    c.scoreDetails.max_courses_per_day.push(g.schedule_day);
+                }
+            });
+        });
+
+        // Now, calculate holes and check max holes per day
+        Object.keys(allSchedules).forEach(day => {
+            // Sort schedules by start time for the current day
+            allSchedules[day].sort((a, b) => moment(a.schedule_time.start, 'HH:mm').diff(moment(b.schedule_time.start, 'HH:mm')));
+
+            const holes = [];
+            allSchedules[day].forEach((s, i) => {
+                if (i === 0) return;
+                const previous = moment(allSchedules[day][i - 1].schedule_time.end, 'HH:mm');
+                const actual = moment(allSchedules[day][i].schedule_time.start, 'HH:mm');
+                if (allSchedules[day][i - 1].schedule_time.end != allSchedules[day][i].schedule_time.start) {
+                    holes.push(actual.diff(previous, 'minutes'));
+                } else {
+
+                }
+            });
+
+            if (holes.length != 0 && holes.length > config.max_holes_per_day) {
+                score -= pointsPerError.max_holes_per_day;
+                c.scoreDetails.max_holes_per_day.push(holes);
+            }
+        });
+
         return score;
     }
-    
-
-
-
 }
 
 // module.exports = { Combination };

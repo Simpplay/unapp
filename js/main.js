@@ -25,7 +25,12 @@ async function loadFile(filePath) {
     return result;
 }
 
-var color = randomColor();
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
 
 function saveFile(content, file_name) {
     const element = document.createElement("a");
@@ -35,10 +40,10 @@ function saveFile(content, file_name) {
     element.click();
 }
 
-function getContrast(hexcolor){
-    var r = parseInt(hexcolor.substring(1,3),16);
-    var g = parseInt(hexcolor.substring(3,5),16);
-    var b = parseInt(hexcolor.substring(5,7),16);
+function getContrast(hexcolor) {
+    var r = parseInt(hexcolor.substring(1, 3), 16);
+    var g = parseInt(hexcolor.substring(3, 5), 16);
+    var b = parseInt(hexcolor.substring(5, 7), 16);
     const brightness = Math.round(((parseInt(r) * 299) + (parseInt(g) * 587) + (parseInt(b) * 114)) / 1000);
     return (brightness > 125) ? 'black' : 'white';
 }
@@ -108,7 +113,7 @@ function addListenersToCombinationUI() {
             Swal.fire('No hay cursos seleccionados');
             return;
         }
-        const combinations = Combination.generateCombinationsFromCourses(courses);
+        const combinations = Combination.generateCombinationsFromCourses(courses, selected_university.actual_configuration);
         if (combinations.length === 0) {
             Swal.fire('No hay combinaciones validas');
             return;
