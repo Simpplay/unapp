@@ -2,7 +2,6 @@ name=Universidad de Antioquia
 id=udea
 
 [instructions]
-%{next:#exact:Materia: }%=[func:eval(console.log("works!"))]
 %{next:#exact:Materia: }%=[var:course_id(func:replace(func:split(self, '] ', 0), '[', ''))]&[var:course_name(func:split(self, '] ', 1))]
 %{next:#exact:GRUPO: }%=[func:changeGroup(self)]&[var:group_id(self)]
 %{next:#exact:HORARIO: }%=[func:nextSchedule()]&[var:schedule_time(func:parseDate(func:function(return "self".split(";")[0].match(/(\d{2})-(\d{2})/)[0].split("-").map(time => `${time}:00`).join("-"))))]

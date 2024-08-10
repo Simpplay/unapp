@@ -25,19 +25,7 @@ async function loadFile(filePath) {
     return result;
 }
 
-function randomColor() {
-    // Generate RGB values with a minimum of 200 to avoid dark tones.
-    let r = Math.floor(Math.random() * 56) + 200;
-    let g = Math.floor(Math.random() * 56) + 200;
-    let b = Math.floor(Math.random() * 56) + 200;
-
-    // Transform RGB values to hexadecimal format.
-    let color = '#' + r.toString(16).padStart(2, '0') +
-        g.toString(16).padStart(2, '0') +
-        b.toString(16).padStart(2, '0');
-
-    return color;
-}
+var color = randomColor();
 
 function saveFile(content, file_name) {
     const element = document.createElement("a");
@@ -45,6 +33,14 @@ function saveFile(content, file_name) {
     element.href = URL.createObjectURL(file);
     element.download = file_name;
     element.click();
+}
+
+function getContrast(hexcolor){
+    var r = parseInt(hexcolor.substring(1,3),16);
+    var g = parseInt(hexcolor.substring(3,5),16);
+    var b = parseInt(hexcolor.substring(5,7),16);
+    const brightness = Math.round(((parseInt(r) * 299) + (parseInt(g) * 587) + (parseInt(b) * 114)) / 1000);
+    return (brightness > 125) ? 'black' : 'white';
 }
 
 async function askForFile() {
@@ -157,7 +153,6 @@ function addListenersToCombinationUI() {
             showCloseButton: true,
             html: getCombinationSettingsHTML(selected_university.actual_configuration),
             willClose: () => {
-                console.log(selected_university.actual_configuration)
                 if (DEBUG) console.log(selected_university.actual_configuration)
             }
         })

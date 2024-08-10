@@ -23,7 +23,6 @@ const default_combination_configurations = {
 }
 
 function setCombinationConfig(value, ...path) {
-    console.log('setCombinationConfig', value, path);
     let config = selected_university.actual_configuration;
     let lastKey = path.pop();
 

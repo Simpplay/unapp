@@ -135,6 +135,7 @@ class university {
 
         li.innerHTML = course.getAsHTML(c);
         li.style.backgroundColor = c.color;
+        li.style.color = getContrast(c.color);
         li.getElementsByClassName('courseGroups')[0].hidden = true;
 
         li.onclick = () => {
@@ -147,9 +148,8 @@ class university {
                 didOpen: () => {
                     Array.from(document.getElementsByClassName('group')).forEach(e => {
                         e.onclick = () => {
-                            console.log(e)
+                            if (DEBUG) console.log(e)
                             const calendarEvents = getCalendarEventsByGroupID(e.getAttribute('group-id'), c.course_id);
-                            console.log(calendarEvents, e.getAttribute('group-id'), c.course_id);
                             calendarEvents.forEach(e => {
                                 const newEvent = mainCalendar.addEvent(e);
                                 this.allEvents.push(newEvent);
@@ -221,9 +221,6 @@ class university {
                 this.allEvents.push(newEvent);
             });
         });
-
-
-        console.log('Combination: ', c);
 
         // Set calendar date to the first event date
         const cE = moment(getCalendarEvents()[0][0].startRecur);

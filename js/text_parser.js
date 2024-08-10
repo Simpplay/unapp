@@ -55,8 +55,6 @@ function addCourse(inputText) {
 
     const c = new course();
     c.parseVariables(variables);
-    console.log(variables)
-    console.log(c)
 
     return selected_university.addCourse(c);;
 }
