@@ -116,6 +116,16 @@ const daysOfWeek = {
   'saturday': 6
 };
 
+const days = {
+  0: 'sunday',
+  1: 'monday',
+  2: 'tuesday',
+  3: 'wednesday',
+  4: 'thursday',
+  5: 'friday',
+  6: 'saturday'
+}
+
 const daysTranslated = {
   'sunday': 'Domingo',
   'monday': 'Lunes',

@@ -7,7 +7,6 @@ async function getUniversities() {
     cachedUniversities = [];
 
     // TODO: Patch for read all the files in universitiesPath directory and iterate over them
-
     const files = ['unal.unapp', 'funlam.unapp', 'udea.unapp'];
     const universityPromises = files.map(file => {
         if (file.endsWith('.unapp')) {
@@ -15,15 +14,194 @@ async function getUniversities() {
         }
     });
 
+    const manualUniversities = localStorage.getItem('manualUniversities');
+    if (manualUniversities) {
+        JSON.parse(manualUniversities).forEach(id => {
+            universityPromises.push(new university(id, [], '', true));
+        });
+    }
+
     cachedUniversities = await Promise.all(universityPromises); // Wait for all promises
+
+    if (manualUniversities) {
+        JSON.parse(manualUniversities).forEach(id => {
+            university.fromJSON(JSON.parse(localStorage.getItem(id)))
+        });
+    }
+    console.log(cachedUniversities)
     return cachedUniversities;
+}
+
+function manualAddUniversity() {
+    Swal.fire({
+        title: 'Agregar universidad',
+        html: `
+        <input id="universityName" class="swal2-input" placeholder="Nombre de la universidad">
+        <input id="universityID" class="swal2-input" placeholder="ID de la universidad">
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Agregar',
+        preConfirm: () => {
+            const name = document.getElementById('universityName').value;
+            const id = document.getElementById('universityID').value;
+            if (name === '' || id === '') {
+                Swal.showValidationMessage('Por favor, llene todos los campos');
+            }
+            else if (/[^a-zA-Z0-9]/.test(id)) {
+                Swal.showValidationMessage('El ID de la universidad solo puede contener letras y números');
+            }
+            else if (cachedUniversities.some(u => u.id == id)) {
+                Swal.showValidationMessage('Ya existe una universidad con ese ID');
+            }
+            else new university(id, [], name, true).then(u => {
+                cachedUniversities.push(u);
+                populateUniversitySelector();
+            });
+        }
+    })
+}
+
+function manualAddCourse() {
+    if (!selected_university) {
+        Swal.fire('Seleccione una universidad');
+        return;
+    }
+    Swal.fire({
+        title: 'Agregar curso',
+        html: `
+        <input id="courseName" class="swal2-input" placeholder="Nombre del curso">
+        <input id="courseID" class="swal2-input" placeholder="ID del curso">
+        <input id="courseCredits" class="swal2-input" placeholder="Créditos del curso">
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Agregar',
+        preConfirm: () => {
+            const name = document.getElementById('courseName').value;
+            const id = document.getElementById('courseID').value;
+            const credits = document.getElementById('courseCredits').value;
+            if (name === '' || id === '') {
+                Swal.showValidationMessage('Por favor, llene todos los campos');
+            }
+            else if (selected_university.courses.some(c => c.course_id == id)) {
+                Swal.showValidationMessage('Ya existe un curso con ese ID');
+            }
+            else selected_university.addCourse(new course(name, id, credits));
+        }
+    })
+}
+
+function manualAddGroup(course_id) {
+    if (!selected_university) {
+        Swal.fire('Seleccione una universidad');
+        return;
+    }
+    if (!course_id) {
+        Swal.fire('Seleccione un curso');
+        return;
+    }
+    const c = selected_university.getCourse(course_id);
+    if (!c) {
+        Swal.fire('Seleccione un curso válido');
+        return;
+    }
+    Swal.fire({
+        title: 'Agregar grupo',
+        html: `
+        <input id="groupID" class="swal2-input" placeholder="ID del grupo*">
+        <input id="groupTeacher" class="swal2-input" placeholder="Profesor del grupo">
+        <input id="groupQuota" class="swal2-input" placeholder="Cupo del grupo*">
+        <input id="groupClassroom" class="swal2-input" placeholder="Salón del grupo">
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Agregar',
+        preConfirm: () => {
+            const id = document.getElementById('groupID').value;
+            const teacher = document.getElementById('groupTeacher').value;
+            const quota = document.getElementById('groupQuota').value;
+            const classroom = document.getElementById('groupClassroom').value;
+            if (id === '' || quota === '') {
+                Swal.showValidationMessage('Por favor, llene los campos obligatorios');
+            }
+            else if (c.course_groups.some(g => g.group_id == id)) {
+                Swal.showValidationMessage('Ya existe un grupo con ese ID');
+            }
+            else c.addGroup(new group(course_id, id, teacher, quota, classroom), true);
+        }
+    })
+}
+
+function manualAddSchedule(group_id, course_id) {
+    if (!selected_university) {
+        Swal.fire('Seleccione una universidad');
+        return;
+    }
+    if (!course_id) {
+        Swal.fire('Seleccione un curso');
+        return;
+    }
+    const c = selected_university.getCourse(course_id);
+    if (!c) {
+        Swal.fire('Seleccione un curso válido');
+        return;
+    }
+    if (!group_id) {
+        Swal.fire('Seleccione un grupo');
+        return;
+    }
+    const g = c.getGroup(group_id);
+    if (!g) {
+        Swal.fire('Seleccione un grupo válido');
+        return;
+    }
+    Swal.fire({
+        title: 'Agregar horario',
+        html: `
+        <div>
+            <select id="scheduleDay" class="swal2-input">
+                <option value="" disabled selected>Día del horario*</option>
+                <option value="1">Lunes</option>
+                <option value="2">Martes</option>
+                <option value="3">Miércoles</option>
+                <option value="4">Jueves</option>
+                <option value="5">Viernes</option>
+                <option value="6">Sábado</option>
+                <option value="0">Domingo</option>
+            </select>
+        </div>
+        
+        <div>
+            <input type="time" id="scheduleStart" class="swal2-input" placeholder="Hora de inicio*">
+            <input type="time" id="scheduleEnd" class="swal2-input" placeholder="Hora de fin*">
+        </div>
+
+        <div>
+            <input type="date" id="scheduleStartDate" class="swal2-input" placeholder="Fecha de inicio*">
+            <input type="date" id="scheduleEndDate" class="swal2-input" placeholder="Fecha de fin*">
+        </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Agregar',
+        preConfirm: () => {
+            const day = document.getElementById('scheduleDay').value;
+            const start = document.getElementById('scheduleStart').value;
+            const end = document.getElementById('scheduleEnd').value;
+            const dateFormat = 'AAAA-MM-DD';
+            const startDate = document.getElementById('scheduleStartDate').value;
+            const endDate = document.getElementById('scheduleEndDate').value;
+            if (day === '' || start === '' || end === '' || dateFormat === '' || startDate === '' || endDate === '') {
+                Swal.showValidationMessage('Por favor, llene los campos obligatorios');
+            }
+            else g.addSchedule(new schedule(days[day], { 'start': start, 'end': end }, 'HH:mm', { 'start': startDate, 'end': endDate }, dateFormat));
+        }
+    })
 }
 
 async function populateUniversitySelector() {
     const universities = await getUniversities();
     const selector = document.getElementById('university_selector');
     if (universities.length === 0) return;
-    universities.forEach(element => {
+    universities.map(u => Array.from(selector.children).some(o => o.value == u.id) ? null : u).forEach(element => {
+        if (!element) return;
         const option = document.createElement("option");
         option.value = element.id;
         option.text = element.name;
@@ -42,9 +220,14 @@ async function onUniversitySelected() {
     const universities = await getUniversities();
     const selector = document.getElementById('university_selector');
     selected_university = universities.find(u => u.id === selector.value);
+    if (selected_university && selected_university.courses.length == 0) {
+        const json = localStorage.getItem(selected_university.id);
+        if (json) university.fromJSON(JSON.parse(json));
+    }
     cleanCourseList();
     mainCalendar.getEvents().forEach(e => e.remove());
     if (selected_university) selected_university.populateCourseList();
+    if (selected_university) selected_university.courses.forEach(c => updateCalendarEvent(c));
 }
 
 function cleanCourseList() {
@@ -53,21 +236,26 @@ function cleanCourseList() {
 }
 
 class university {
-    constructor(id, courses = []) {
+    constructor(id, courses = [], name = '', isManual = false) {
         this.id = id.split('.')[0];
         this.courses = courses;
         this.combinations = [];
         this.actualCombination = 0;
         this.actual_configuration = Object.assign({}, default_combination_configurations);
 
+        if (isManual) this.name = name;
+        this.isManual = isManual;
+
         // Return a promise that resolves when the name is set
-        return this.initialize(id);
+        return this.initialize(id, isManual);
     }
 
-    async initialize(id) {
-        const conf = await handleConfig(universitiesPath, id);
-        this.name = conf.name;
-        this.instructions = conf.instructions;
+    async initialize(id, isManual = false) {
+        if (!isManual) {
+            const conf = await handleConfig(universitiesPath, id);
+            this.name = conf.name;
+            this.instructions = conf.instructions;
+        }
         this.populateCourseList();
         return this; // Return the university instance after initialization
     }
@@ -83,16 +271,8 @@ class university {
             }
         }
 
-        if (u.id !== selected_university.id) {
-            return {
-                title: 'Error',
-                text: 'La universidad no coincide con la seleccionada',
-                icon: 'error',
-                confirmButtonText: 'Continuar'
-            }
-        }
-
         if (json.configuration) u.actual_configuration = json.configuration;
+        if (json.name) u.name = json.name;
 
         json.courses.forEach(_c => {
             const gE = []
@@ -104,7 +284,7 @@ class university {
                 gE.push(new group(c.parent_course_id, c.group_id, c.course_teacher, c.group_quota, c.classroom, dE));
             });
             u.addCourse(new course(_c.course_name, _c.course_id, _c.course_credits, gE));
-            updateCalendarEvent(_c);
+            // updateCalendarEvent(_c);
         });
 
         return {
@@ -118,18 +298,26 @@ class university {
     getAsJSON() {
         return JSON.stringify({
             id: this.id,
+            name: this.name,
             configuration: this.actual_configuration,
             courses: this.courses
         });
     }
 
     populateCourseList() {
+        cleanCourseList();
         this.courses.forEach(c => {
             this.addCourseToLi(c);
         });
     }
 
+    cleanCourseList() {
+        const list = document.getElementById('courseList');
+        list.innerHTML = '';
+    }
+
     addCourseToLi(c) {
+        if (!selected_university) return;
         const list = document.getElementById('courseList');
         const li = document.createElement('li');
 
@@ -150,7 +338,8 @@ class university {
                         c.course_groups.forEach(g => g.disableGroup(true));
                         e.onclick = () => {
                             if (DEBUG) console.log(e)
-                            c.getGroup(e.getAttribute('group-id')).disableGroup();
+                            const g = c.getGroup(e.getAttribute('group-id'));
+                            if (g) g.disableGroup();
                         };
                     });
                 }
@@ -199,6 +388,15 @@ class university {
         return this.courses.find(c => c.course_id == course_id);
     }
 
+    removeCourse(course_id) {
+        this.courses = this.courses.filter(c => c.course_id != course_id);
+        this.populateCourseList();
+    }
+
+    cleanCombinations() {
+        this.combinations = [];
+    }
+
     goToCombination(index) {
         index = (index < 0) ? this.combinations.length - 1 : (index > this.combinations.length - 1) ? 0 : index;
         document.getElementById('combinationCounter').innerText = `${index + 1}/${this.combinations.length}`;
@@ -208,13 +406,13 @@ class university {
         // Clear existing events
         this.allEvents.forEach(e => e.remove());
         this.allEvents = [];
-        // mainCalendar.getEvents().forEach(e => e.remove());
 
         // Add new events for the selected combination
         if (c === undefined) return;
         c.groups.forEach(g => {
             const calendarEvents = getCalendarEventsByGroupID(g.group_id, g.parent_course_id);
             calendarEvents.forEach(e => {
+                console.log('Event:', e);
                 const newEvent = mainCalendar.addEvent(e);
                 this.allEvents.push(newEvent);
             });

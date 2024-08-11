@@ -20,6 +20,17 @@ textarea#textInput:focus {
     outline: none;
 }
 
+.un-selector {
+    display: inherit;
+}
+
+button#addUniversityButton {
+    position: relative;
+    left: 20px;
+    width: 30px;
+    height: 30px;
+}
+
 /* Button container */
 #saveAndLoadGroup {
     display: flex;
@@ -52,7 +63,8 @@ button#submitBtn:active {
 }
 
 button#saveBtn,
-button#loadBtn {
+button#loadBtn,
+button#addBtn {
     flex: 1;
     /* Make both buttons take equal space */
     margin: 0 5px;
@@ -69,11 +81,13 @@ button#loadBtn {
 
 
 button#saveBtn:hover,
-button#loadBtn:hover {
+button#loadBtn:hover,
+button#addBtn:hover {
     background-color: var(--save-and-load-hover-color);
 }
 
 button#saveBtn:active,
-button#loadBtn:active {
+button#loadBtn:active,
+button#addBtn:active {
     background-color: var(--save-and-load-active-color);
 }

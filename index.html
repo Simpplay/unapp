@@ -39,14 +39,18 @@
     <button onclick="toggleStyle()" id="toggle-dark-mode">Dark Mode</button>
   </div>
   <div class="container">
-    <select id="university_selector" onchange="onUniversitySelected();">
-      <option value="0">Seleccione una universidad</option>
-    </select>
+    <div class="un-selector">
+      <select id="university_selector" onchange="onUniversitySelected();">
+        <option value="0">Seleccione una universidad</option>
+      </select>
+      <button id="addUniversityButton" onclick="manualAddUniversity()">+</button>
+    </div>
     <textarea id="textInput" placeholder="Ingrese texto aquí" rows="5" cols="40"></textarea>
     <button id="submitBtn">Enviar</button>
     <div id="saveAndLoadGroup">
-      <button id="saveBtn">Guardar</button>
-      <button id="loadBtn">Cargar</button>
+      <button id="saveBtn" hidden>Guardar</button>
+      <button id="addBtn" onclick="manualAddCourse()">Agregar</button>
+      <button id="loadBtn" hidden>Cargar</button>
     </div>
     <div class="combinationContainer">
       <div class="combination-button-group">

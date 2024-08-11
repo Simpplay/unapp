@@ -164,6 +164,17 @@ function addListenersToCombinationUI() {
     });
 }
 
+function saveInLocalStorage(force) {
+    if (!cachedUniversities || cachedUniversities.length == 0) return;
+    const manualUniversities = [];
+    cachedUniversities.forEach(u => {
+        if (u.courses.length === 0 && !force) return;
+        if (u.isManual) manualUniversities.push(u.id);
+        localStorage.setItem(u.id, u.getAsJSON());
+    });
+    localStorage.setItem('manualUniversities', JSON.stringify(manualUniversities));
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // Populate the selector of universities
     populateUniversitySelector();
@@ -173,4 +184,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Add event listeners to the combination UI
     addListenersToCombinationUI();
+});
+
+
+window.addEventListener('beforeunload', function (e) {
+    // Save the universities in the local storage before leaving the page
+    saveInLocalStorage(false);
 });

@@ -6,6 +6,17 @@ function changeGroupColor(course_id, color) {
     selected_university.goToCombination(selected_university.actualCombination);
 }
 
+function deleteCourse(course_id) {
+    selected_university.removeCourse(course_id);
+    mainCalendar.getEvents().forEach(e => {
+        if (e._def.publicId == course_id)
+            e.remove();
+    });
+    selected_university.cleanCombinations();
+    Array.from(document.getElementsByClassName('course')).filter(c => c.getAttribute('course-id') == course_id).forEach(cE => cE.remove());
+    saveInLocalStorage(true);
+}
+
 class course {
     static defaultVariables = {
         "course_name": (c, value) => {
@@ -36,8 +47,12 @@ class course {
                 <div class="courseName">${c.course_name}</div>
                 <div class="courseId">${c.course_id}</div>
                 ${c.course_credits ? `<div class="courseCredits">Creditos: ${c.course_credits}</div>` : ''}
-                ${color_palete ? `<input type="color" class="courseColorPalete" value="${c.color}" onchange="changeGroupColor('${c.course_id}', event.target.value)"></input>` : ''}
-                ${color_palete ? `<button onclick="changeGroupColor('${c.course_id}', randomColor())">New Color</button>` : ''}
+                ${color_palete ? `<div class="courseColor">
+                    <input type="color" class="courseColorPalete" value="${c.color}" onchange="changeGroupColor('${c.course_id}', event.target.value)"></input>
+                    <button onclick="changeGroupColor('${c.course_id}', randomColor())">New Color</button></div>` : ''}
+                ${color_palete ? `<div class="manualAddGroup"><button onclick="manualAddGroup('${c.course_id}')">Add</button></div>` : ''}
+                ${color_palete ? `<div class="groupDelete"><button onclick="deleteCourse('${c.course_id}')">Delete</button></div>` : ''}
+                
                 <ul class="courseGroups">
                     ${c.course_groups.map(g => group.getAsHTML(g)).join('')}
                 </ul>
@@ -59,8 +74,8 @@ class course {
         return selected_university.getCourse(id);
     }
 
-    addGroup(group) {
-        if (group.schedule.length == 0) {
+    addGroup(group, isManual = false) {
+        if (!isManual && group.schedule.length == 0) {
             console.log('Empty group detected: ', group);
             return;
         }
@@ -88,6 +103,15 @@ class course {
     }
 }
 
+function deleteGroup(group_id, parent_id) {
+    const course = selected_university.getCourse(parent_id);
+    course.course_groups = course.course_groups.filter(g => g.group_id != group_id);
+    mainCalendar.getEvents().forEach(e => {
+        if (e._def.publicId == parent_id && e._def.groupId == group_id)
+            e.remove();
+    });
+    Array.from(document.getElementsByClassName('group')).filter(c => c.getAttribute('group-id') == group_id).forEach(cE => cE.remove());
+}
 
 class group {
     static defaultVariables = {
@@ -177,6 +201,10 @@ class group {
             <div class="groupDescription">
                 ${g.group_id ? `<div class="group_id">Grupo: ${g.group_id}</div>` : ''}
                 ${g.group_quota >= 0 ? `<div class="groupQuota">Cupos: ${g.group_quota}</div>` : ''}
+                <div>
+                    <div class="deleteGroup"><button onclick="manualAddSchedule('${g.group_id}', '${g.parent_course_id}')">Add</button></div>
+                    <div class="deleteGroup"><button onclick="deleteGroup('${g.group_id}', '${g.parent_course_id}')">Delete</button></div>
+                </div>
                 <ul class="groupSchedules">
                     ${g.schedule.map(s => schedule.getAsHTML(s)).join('')}
                 </ul>
@@ -233,7 +261,7 @@ class schedule {
             <div class="scheduleDescription" schedule-day="${s.schedule_day}" schedule-time="${s.schedule_time.start}-${s.schedule_time.end}" schedule-time-format="${s.schedule_time_format}" schedule-date="${s.date.start}-${s.date.end}" schedule-date-format="${s.date_format}">
                 <div class="scheduleDay">${translateDay(s.schedule_day)}</div>
                 <div class="scheduleTime">${s.schedule_time.start} - ${s.schedule_time.end}</div>
-                ${s.date ? `<div class="groupDate">Fecha: ${s.date.start} - ${s.date.end}</div>` : ''}
+                ${s.date ? `<div class="groupDate">Fecha: ${moment(s.date.start, s.date_format).format('DD/MM/YYYY')} - ${moment(s.date.end, s.date_format).format('DD/MM/YYYY')}</div>` : ''}
             </div>
         </li>`;
     }
