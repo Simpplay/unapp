@@ -43,6 +43,7 @@ function addCourse(inputText) {
     const lines = inputText.split('\n');
 
     const variables = [];
+    variables['requirements'] = {};
 
     // Procesar cada línea del texto de entrada con cada instrucción
     lines.forEach(line => {

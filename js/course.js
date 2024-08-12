@@ -33,12 +33,13 @@ class course {
         }
     }
 
-    constructor(course_name = "", course_id = "", course_credits = 0, course_groups = []) {
+    constructor(course_name = "", course_id = "", course_credits = 0, course_groups = [], requirements = {}) {
         this.course_name = course_name;
         this.course_id = course_id;
         this.course_credits = course_credits;
         this.course_groups = course_groups;
         this.color = randomColor();
+        this.requirements = requirements;
     }
 
     static getAsHTML(c, color_palete = false) {
@@ -105,6 +106,7 @@ class course {
                 this.addGroup(g);
             }
         });
+        this.requirements = variables['requirements'];
         return remaining;
     }
 }

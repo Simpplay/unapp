@@ -77,6 +77,12 @@ class instruction {
                 if (!stop) a.getValue(self, ret);
             }, this);
         };
+        if (requirementsRegex && !stop) {
+            const req = requirementsRegex.exec(line);
+            if (req) {
+                ret['requirements'][req[1]] = req[2];
+            }
+        }
     }
 
 
@@ -241,6 +247,7 @@ var actual_group = 0;
 var actual_schedule = 0;
 var stop = false;
 var variablesDisabled = false;
+var requirementsRegex = undefined;
 
 class default_functions {
     static organizeString(string) {
@@ -256,9 +263,6 @@ class default_functions {
     }
 
     static functions = {
-        "eval": (variables, code) => {
-            return eval(code);
-        },
         "function": (variables, code) => {
             return new Function(code)();
         },
@@ -295,6 +299,13 @@ class default_functions {
         },
         "nextSchedule": (variables) => {
             actual_schedule++;
+        },
+        "startRequirements": (variables, regex) => {
+            requirementsRegex = new RegExp(regex, 'g');
+        },
+        "endRequirements": (variables) => {
+            requirementsRegex = undefined;
+            return;
         },
         "disableVariables": (variables) => {
             variablesDisabled = true;

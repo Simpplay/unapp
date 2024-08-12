@@ -282,8 +282,7 @@ class university {
                 });
                 gE.push(new group(c.parent_course_id, c.group_id, c.course_teacher, c.group_quota, c.classroom, dE));
             });
-            u.addCourse(new course(_c.course_name, _c.course_id, _c.course_credits, gE));
-            // updateCalendarEvent(_c);
+            u.addCourse(new course(_c.course_name, _c.course_id, _c.course_credits, gE, _c.requirements));
         });
 
         return {
@@ -298,6 +297,7 @@ class university {
         return JSON.stringify({
             id: this.id,
             name: this.name,
+            requirements: this.requirements,
             configuration: this.actual_configuration,
             courses: this.courses
         });

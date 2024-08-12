@@ -25,3 +25,5 @@ id=unal
 %{next_line:#exact:VIERNES}%=[var:classroom(self)]
 %{next_line:#exact:SÁBADO}%=[var:classroom(self)]
 %{next_line:#exact:DOMINGO}%=[var:classroom(self)]
+%{next_line:#contains:Número asignaturas }%=[func:startRequirements('(\d+-M|\d+)(.+)')]
+%{next:#contains:Tipo de prerrequisito implica}%=[func:endRequirements()]
