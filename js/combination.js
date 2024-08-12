@@ -67,8 +67,8 @@ function getCombinationSettingsHTML(config = default_combination_configurations)
             <input type="checkbox" onchange="const a = document.getElementById('lunch_start');const b = getElementById('lunch_end');const c = event.target.checked;a.disabled = !c;b.disabled = !c;if (!c) {a.value='00:00';setCombinationConfig('00:00', 'lunch_time', 'start');b.value='00:00';setCombinationConfig('00:00', 'lunch_time', 'end')}" name="lunch_time_enable" ${config.lunch_time.start == '00:00' && config.lunch_time.end == '00:00' ? '' : 'checked'}>
             Lunch Time:
         </label><br>
-        Start: <input type="time" id="lunch_start" value="${config.lunch_time.start}" onchange="setCombinationConfig(this.value, 'lunch_time', 'start')"><br>
-        End: <input type="time" id="lunch_end" value="${config.lunch_time.end}" onchange="setCombinationConfig(this.value, 'lunch_time', 'end')">
+        Start: <input type="time" id="lunch_start" value="${config.lunch_time.start}" onchange="setCombinationConfig(this.value, 'lunch_time', 'start')" ${config.lunch_time.start === '00:00' && config.lunch_time.end === '00:00' ? 'disabled' : ''}><br>
+        End: <input type="time" id="lunch_end" value="${config.lunch_time.end}" onchange="setCombinationConfig(this.value, 'lunch_time', 'end')" ${config.lunch_time.start === '00:00' && config.lunch_time.end === '00:00' ? 'disabled' : ''}>
     </div>`;
 
     // Max Courses Per Day

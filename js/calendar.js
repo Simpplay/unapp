@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
       right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
     },
     footerToolbar: {
-      left: 'fix',
+      left: 'fix download',
       right: 'prev,next today'
     },
     dayMaxEvents: true, // allow "more" link when too many events,
@@ -36,14 +36,92 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Add fix button
   const fixButton = document.getElementsByClassName('fc-fix-button')[0];
-  fixButton.textContent = 'Fijar';
+  const fixIcon = document.createElement('i');
+  fixIcon.className = 'fas sharp';
+  fixIcon.innerHTML = '';
+  fixButton.appendChild(fixIcon);
   fixButton.onclick = () => {
-    const calendarEvents = getCalendarEvents()[0][0];
-    const cE = moment(calendarEvents.startRecur);
-    cE.add(10, 'days');
-    if (calendarEvents) mainCalendar.gotoDate(cE.format());
-    else Swal.fire('No hay eventos en el calendario');
+    const calendarEvents = getCalendarEvents();
+    if (calendarEvents && calendarEvents.length > 0) {
+      const cE = moment(calendarEvents[0][0].startRecur);
+      cE.add(10, 'days');
+      mainCalendar.gotoDate(cE.format());
+    }
+    else Swal.fire('No hay elementos en el calendario');
   };
+
+  // Add download button
+  const downloadButton = document.getElementsByClassName('fc-download-button')[0];
+  const downloadIcon = document.createElement('i');
+  downloadIcon.className = 'fas solid fa-image';
+  downloadButton.appendChild(downloadIcon);
+  downloadButton.onclick = () => {
+    const calendarEvents = mainCalendar.getEvents();
+    if (calendarEvents.length === 0) {
+      Swal.fire('No hay elementos en el calendario');
+      return;
+    }
+
+    const calendarContainer = document.querySelector('.calendarContainer');
+    const originalStyles = {
+      position: calendarContainer.style.position,
+      top: calendarContainer.style.top,
+      left: calendarContainer.style.left,
+      width: calendarContainer.style.width,
+      height: calendarContainer.style.height,
+      zIndex: calendarContainer.style.zIndex
+    };
+
+    // Set the container to full screen
+    calendarContainer.style.position = 'fixed';
+    calendarContainer.style.top = '0';
+    calendarContainer.style.left = '0';
+    calendarContainer.style.width = '100vw';
+    calendarContainer.style.height = '100vh';
+    calendarContainer.style.zIndex = '9999';  // Ensure it's on top
+
+
+    // Get the minimum time based on the events
+    let minTime = '24:00:00'; // Start with the latest possible time
+    calendarEvents.forEach(event => {
+      const eventStart = event.start;
+      const eventStartTime = moment(eventStart).add(-1, 'hour').format('HH:mm:ss'); // Format as 'HH:mm:ss'
+
+      if (eventStartTime < minTime) {
+        minTime = eventStartTime;
+      }
+    });
+    console.log(minTime)
+    mainCalendar.setOption('slotMinTime', minTime);
+
+    mainCalendar.updateSize();
+
+    // Wait a moment to ensure styles are applied
+    setTimeout(() => {
+      domtoimage.toPng(document.querySelector('.fc-view'))
+        .then(function (dataUrl) {
+          // Revert the container to its original styles
+          Object.assign(calendarContainer.style, originalStyles);
+          mainCalendar.setOption('slotMinTime', '00:00:00');
+          mainCalendar.updateSize();
+
+          // Uncomment the following lines if you want to download the image directly
+          const link = document.createElement('a');
+          link.download = 'calendario.png';
+          link.href = dataUrl;
+          link.click();
+        })
+        .catch(function (error) {
+          console.error('Error capturando el calendario:', error);
+          Swal.fire('Error al capturar el calendario');
+
+          // Revert the container to its original styles even if there's an error
+          Object.assign(calendarContainer.style, originalStyles);
+        });
+    }, 100);  // Adjust the delay as needed to ensure styles are applied
+  };
+
+
 });
 
 function updateCalendarEvent(c) {
@@ -80,6 +158,7 @@ function removeCalendarEventsFromCourse(c) {
 }
 
 function getCalendarEvents() {
+  if (!selected_university) return [];
   if (selected_university.cachedCalendarEvents && selected_university.cachedCalendarEvents.length === 0) return selected_university.cachedCalendarEvents;
   selected_university.courses.forEach(c => {
     updateCalendarEvent(c);

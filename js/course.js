@@ -49,9 +49,15 @@ class course {
                 ${c.course_credits ? `<div class="courseCredits">Creditos: ${c.course_credits}</div>` : ''}
                 ${color_palete ? `<div class="courseColor">
                     <input type="color" class="courseColorPalete" value="${c.color}" onchange="changeGroupColor('${c.course_id}', event.target.value)"></input>
-                    <button onclick="changeGroupColor('${c.course_id}', randomColor())">New Color</button></div>` : ''}
-                ${color_palete ? `<div class="manualAddGroup"><button onclick="manualAddGroup('${c.course_id}')">Add</button></div>` : ''}
-                ${color_palete ? `<div class="groupDelete"><button onclick="deleteCourse('${c.course_id}')">Delete</button></div>` : ''}
+                    <button onclick="changeGroupColor('${c.course_id}', randomColor())"><i class="fas"></i></button></div>` : ''}
+                ${color_palete ? `<div>
+                        <button onclick="deleteCourse('${c.course_id}')">
+                            <i class="fas solid fa-user-minus"></i>
+                        </button>
+                        <button onclick="manualAddGroup('${c.course_id}')">
+                            <i class="fas solid fa-user-plus"></i>
+                        </button>
+                    </div>` : ''}
                 
                 <ul class="courseGroups">
                     ${c.course_groups.map(g => group.getAsHTML(g)).join('')}
@@ -202,8 +208,14 @@ class group {
                 ${g.group_id ? `<div class="group_id">Grupo: ${g.group_id}</div>` : ''}
                 ${g.group_quota >= 0 ? `<div class="groupQuota">Cupos: ${g.group_quota}</div>` : ''}
                 <div>
-                    <div class="deleteGroup"><button onclick="manualAddSchedule('${g.group_id}', '${g.parent_course_id}')">Add</button></div>
-                    <div class="deleteGroup"><button onclick="deleteGroup('${g.group_id}', '${g.parent_course_id}')">Delete</button></div>
+                    <div>
+                        <button onclick="deleteGroup('${g.group_id}', '${g.parent_course_id}')">
+                            <i class="fas"></i>
+                        </button>
+                        <button onclick="manualAddSchedule('${g.group_id}', '${g.parent_course_id}')">
+                            <i class="fas regular fa-calendar-plus"></i>
+                        </button>
+                    </div>
                 </div>
                 <ul class="groupSchedules">
                     ${g.schedule.map(s => schedule.getAsHTML(s)).join('')}

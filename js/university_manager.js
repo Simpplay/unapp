@@ -28,7 +28,6 @@ async function getUniversities() {
             university.fromJSON(JSON.parse(localStorage.getItem(id)))
         });
     }
-    console.log(cachedUniversities)
     return cachedUniversities;
 }
 
@@ -412,7 +411,6 @@ class university {
         c.groups.forEach(g => {
             const calendarEvents = getCalendarEventsByGroupID(g.group_id, g.parent_course_id);
             calendarEvents.forEach(e => {
-                console.log('Event:', e);
                 const newEvent = mainCalendar.addEvent(e);
                 this.allEvents.push(newEvent);
             });

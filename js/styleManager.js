@@ -69,6 +69,9 @@ const mode = {
     light: lightMode
 };
 
+const darkModeIcon = `<i class="fas solid fa-moon"></i>`
+const lightModeIcon = `<i class="fas solid fa-sun"></i>`
+
 let isDarkMode = localStorage.getItem('style') === 'dark';
 
 function toggleStyle() {
@@ -79,15 +82,22 @@ function toggleStyle() {
 function applyStyle(style) {
     localStorage.setItem('style', isDarkMode ? 'dark' : 'light');
     if (document.getElementById('toggle-dark-mode'))
-        document.getElementById('toggle-dark-mode').innerText = isDarkMode ? 'Light Mode' : 'Dark Mode';
+        // document.getElementById('toggle-dark-mode').innerText = isDarkMode ? 'Light Mode' : 'Dark Mode';
+        changeDarkModeIcon();
     for (const [key, value] of Object.entries(style)) {
         document.documentElement.style.setProperty(key, value);
     }
 }
 
+function changeDarkModeIcon() {
+    if (document.getElementById('dark-mode-icon'))
+        document.getElementById('dark-mode-icon').innerHTML = isDarkMode ? lightModeIcon : darkModeIcon;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('toggle-dark-mode'))
-        document.getElementById('toggle-dark-mode').innerText = isDarkMode ? 'Light Mode' : 'Dark Mode';
+        // document.getElementById('toggle-dark-mode').innerText = isDarkMode ? 'Light Mode' : 'Dark Mode';
+    changeDarkModeIcon();
 });
 
 applyStyle(isDarkMode ? darkMode : lightMode);

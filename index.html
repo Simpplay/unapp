@@ -7,21 +7,20 @@
   <title>UNApp</title>
 
   <script src="./js/styleManager.js"></script>
-  <link rel="stylesheet" href="css/index.css">
 
+  <link rel="stylesheet" href="css/index.css">
   <link rel="stylesheet" href="css/university_selector.css">
   <link rel="stylesheet" href="css/university_courses.css">
   <link rel="stylesheet" href="css/combination.css">
-
   <link rel="stylesheet" href="css/calendar.css">
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.6.1/randomColor.min.js"
-    integrity="sha512-vPeZ7JCboHcfpqSx5ZD+/jpEhS4JpXxfz9orSvAPPj0EKUVShU2tgy7XkU+oujBJKnWmu4hU7r9MMQNWPfXsYw=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+  <link rel="stylesheet" href="libs/fontawesome/css/all.min.css"></link>
 
+  <script src="libs/js/dom-to-image.min.js"></script>
+  <script src="libs/js/randomColor.min.js"></script>
+  <script src="libs/js/moment.min.js"></script>
+  <script src="libs/js/sweetalert2@11.js"></script>
+  <script src='libs/js/index.global.min.js'></script>
 
   <script src="./js/main.js"></script>
 
@@ -36,31 +35,43 @@
 <body>
   <div class="header">
     <h1>UNApp</h1>
-    <button onclick="toggleStyle()" id="toggle-dark-mode">Dark Mode</button>
+    <button onclick="toggleStyle()" id="toggle-dark-mode"><i id="dark-mode-icon"></i></button>
   </div>
   <div class="container">
     <div class="un-selector">
       <select id="university_selector" onchange="onUniversitySelected();">
         <option value="0">Seleccione una universidad</option>
       </select>
-      <button id="addUniversityButton" onclick="manualAddUniversity()">+</button>
+      <button id="addUniversityButton" onclick="manualAddUniversity()">
+        <i class="fas solid fa-plus"></i>
+      </button>
     </div>
     <textarea id="textInput" placeholder="Ingrese texto aquí" rows="5" cols="40"></textarea>
     <button id="submitBtn">Enviar</button>
     <div id="saveAndLoadGroup">
-      <button id="saveBtn" hidden>Guardar</button>
+      <button id="saveBtn">
+        <i class="fas solid fa-download"></i>
+      </button>
       <button id="addBtn" onclick="manualAddCourse()">Agregar</button>
-      <button id="loadBtn" hidden>Cargar</button>
+      <button id="loadBtn">
+        <i class="fas solid fa-upload"></i>
+      </button>
     </div>
     <div class="combinationContainer">
       <div class="combination-button-group">
-        <button id="prevCombination">Anterior</button>
+        <button id="prevCombination">
+          <i class="fas solid fa-backward"></i>
+        </button>
         <div class="generate-wrapper">
           <div id="combinationCounter"></div>
           <button id="generateCombination">Generar</button>
         </div>
-        <button id="nextCombination">Siguiente</button>
-        <button id="combinationSettings">:</button>
+        <button id="nextCombination">
+          <i class="fas solid fa-forward"></i>
+        </button>
+        <button id="combinationSettings">
+          <i class="fas"></i>
+        </button>
       </div>
     </div>
     <div class="courseContainer">
