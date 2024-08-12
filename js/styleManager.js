@@ -97,7 +97,7 @@ function changeDarkModeIcon() {
 applyStyle(isDarkMode ? darkMode : lightMode);
 
 function loadHeader() {
-    fetch(`${!location.pathname.startsWith('/html/') ? '/html/' : ''}header.html`)
+    fetch('https://simpplay.github.io/unapp/html/header.html')
         .then(response => response.text())
         .then(data => {
             const body = document.querySelector('body');
