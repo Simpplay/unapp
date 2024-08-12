@@ -1,15 +1,3 @@
-// const { instruction } = require('./js/instruction');
-// const { course, group, schedule } = require('./js/course');
-
-// const path = require('path');
-//  const fs = require('fs');
-
-// const { Calendar } = require('fullcalendar');
-
-// const Swal = require('sweetalert2');
-// const moment = require('moment');
-// const { get } = require('http');
-
 const DEBUG = false;
 
 // Synchronously read a text file from the web server
@@ -68,6 +56,8 @@ async function askForFile() {
         input.click();
     });
 }
+
+loadHeader();
 
 function addListenersToUniversityUI() {
     // Event listener for the submit button
@@ -177,13 +167,13 @@ function saveInLocalStorage(force) {
 
 document.addEventListener('DOMContentLoaded', function () {
     // Populate the selector of universities
-    populateUniversitySelector();
+    if (document.getElementsByClassName('un-selector').length > 0) populateUniversitySelector();
 
     // Add event listeners to the university UI
     addListenersToUniversityUI();
 
     // Add event listeners to the combination UI
-    addListenersToCombinationUI();
+    if (document.getElementsByClassName('combinationContainer').length > 0) addListenersToCombinationUI();
 });
 
 
@@ -191,3 +181,49 @@ window.addEventListener('beforeunload', function (e) {
     // Save the universities in the local storage before leaving the page
     saveInLocalStorage(false);
 });
+
+
+// Define a mapping of days to their respective integer values, starting from Sunday
+const daysOfWeek = {
+    'sunday': 0,
+    'monday': 1,
+    'tuesday': 2,
+    'wednesday': 3,
+    'thursday': 4,
+    'friday': 5,
+    'saturday': 6
+};
+
+const days = {
+    0: 'sunday',
+    1: 'monday',
+    2: 'tuesday',
+    3: 'wednesday',
+    4: 'thursday',
+    5: 'friday',
+    6: 'saturday'
+}
+
+const daysTranslated = {
+    'sunday': 'Domingo',
+    'monday': 'Lunes',
+    'tuesday': 'Martes',
+    'wednesday': 'Miércoles',
+    'thursday': 'Jueves',
+    'friday': 'Viernes',
+    'saturday': 'Sábado'
+};
+
+function dayIntFromSunday(schedule_day) {
+    if (typeof schedule_day !== 'string') {
+        console.error('Invalid schedule_day:', schedule_day);
+        return null; // or some other appropriate default
+    }
+    // Return the corresponding integer for the given schedule_day
+    return daysOfWeek[schedule_day.toLowerCase()];
+}
+
+function translateDay(schedule_day) {
+    // Return the corresponding translation for the given schedule_day
+    return daysTranslated[schedule_day.toLowerCase()];
+}

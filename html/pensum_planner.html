@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNApp - Pensum Planner</title>
+
+    <script src="../js/styleManager.js"></script>
+
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/university_selector.css">
+
+    <link rel="stylesheet" href="../libs/fontawesome/css/all.min.css">
+
+    <script src="../libs/js/randomColor.min.js"></script>
+    <script src="../libs/js/moment.min.js"></script>
+    <script src="../libs/js/sweetalert2@11.js"></script>
+
+    <script src="../js/main.js"></script>
+
+    <script src="../js/planner.js"></script>
+
+    <script src="../js/instruction.js"></script>
+    <script src="../js/course.js"></script>
+    <script src="../js/text_parser.js"></script>
+    <script src="../js/university_manager.js"></script>
+    <script src="../js/combination.js"></script>
+    </link>
+</head>
+
+<body>
+    <div class="container">
+        <div class="un-selector">
+            <select id="university_selector" onchange="onUniversitySelected();">
+                <option value="0">Seleccione una universidad</option>
+            </select>
+            <button id="addUniversityButton" onclick="manualAddUniversity()">
+                <i class="fas solid fa-plus"></i>
+            </button>
+        </div>
+        <textarea id="textInput" placeholder="Ingrese texto aquí" rows="5" cols="40"></textarea>
+        <button id="submitBtn">Enviar</button>
+        <div id="saveAndLoadGroup">
+            <button id="saveBtn">
+                <i class="fas solid fa-download"></i>
+            </button>
+            <button id="addBtn" onclick="manualAddCourse()">Agregar</button>
+            <button id="loadBtn">
+                <i class="fas solid fa-upload"></i>
+            </button>
+        </div>
+        <div class="all-courses">
+            <ul class="all-courses-list"></ul>
+        </div>
+        <div id="courseContainer"></div>
+    </div>
+</body>
+
+</html>

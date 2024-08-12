@@ -77,10 +77,15 @@ class instruction {
                 if (!stop) a.getValue(self, ret);
             }, this);
         };
-        if (requirementsRegex && !stop) {
-            const req = requirementsRegex.exec(line);
+
+        // TODO: Generalize this
+        if (requirementsRegex && !stop && !line.includes('¿Todas?')) {
+            let req = requirementsRegex.exec(line);
+            console.log(req)
             if (req) {
-                ret['requirements'][req[1]] = req[2];
+                if (req.length == 3) {
+                    ret['requirements'][req[1]] = req[2];
+                }
             }
         }
     }
@@ -321,5 +326,3 @@ class default_functions {
         }
     }
 }
-
-// module.exports = { instruction };

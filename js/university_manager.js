@@ -1,4 +1,4 @@
-const universitiesPath = 'assets/universities';
+const universitiesPath = `${location.pathname.startsWith('/html/') ? '../' : ''}assets/universities`;
 
 var cachedUniversities = null;
 
@@ -224,14 +224,15 @@ async function onUniversitySelected() {
         if (json) university.fromJSON(JSON.parse(json));
     }
     cleanCourseList();
-    mainCalendar.getEvents().forEach(e => e.remove());
+    if (typeof mainCalendar != 'undefined') mainCalendar.getEvents().forEach(e => e.remove());
     if (selected_university) selected_university.populateCourseList();
-    if (selected_university) selected_university.courses.forEach(c => updateCalendarEvent(c));
+    if (selected_university && typeof mainCalendar != 'undefined') selected_university.courses.forEach(c => updateCalendarEvent(c));
+    if (typeof planner_on_university_change === 'function') planner_on_university_change();
 }
 
 function cleanCourseList() {
     const list = document.getElementById('courseList');
-    list.innerHTML = '';
+    if (list) list.innerHTML = '';
 }
 
 class university {
@@ -318,6 +319,7 @@ class university {
     addCourseToLi(c) {
         if (!selected_university) return;
         const list = document.getElementById('courseList');
+        if (!list) return;
         const li = document.createElement('li');
 
         li.innerHTML = course.getAsHTML(c);
@@ -397,6 +399,7 @@ class university {
     }
 
     goToCombination(index) {
+        if (!mainCalendar) return;
         index = (index < 0) ? this.combinations.length - 1 : (index > this.combinations.length - 1) ? 0 : index;
         document.getElementById('combinationCounter').innerText = `${index + 1}/${this.combinations.length}`;
         const c = this.combinations[index];
@@ -410,6 +413,7 @@ class university {
         if (c === undefined) return;
         c.groups.forEach(g => {
             const calendarEvents = getCalendarEventsByGroupID(g.group_id, g.parent_course_id);
+
             calendarEvents.forEach(e => {
                 const newEvent = mainCalendar.addEvent(e);
                 this.allEvents.push(newEvent);

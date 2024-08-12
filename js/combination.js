@@ -365,5 +365,3 @@ class Combination {
         return score;
     }
 }
-
-// module.exports = { Combination };

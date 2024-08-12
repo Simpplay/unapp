@@ -8,10 +8,11 @@ function changeGroupColor(course_id, color) {
 
 function deleteCourse(course_id) {
     selected_university.removeCourse(course_id);
-    mainCalendar.getEvents().forEach(e => {
-        if (e._def.publicId == course_id)
-            e.remove();
-    });
+    if (typeof mainCalendar != 'undefined')
+        mainCalendar.getEvents().forEach(e => {
+            if (e._def.publicId == course_id)
+                e.remove();
+        });
     selected_university.cleanCombinations();
     Array.from(document.getElementsByClassName('course')).filter(c => c.getAttribute('course-id') == course_id).forEach(cE => cE.remove());
     saveInLocalStorage(true);
@@ -114,10 +115,11 @@ class course {
 function deleteGroup(group_id, parent_id) {
     const course = selected_university.getCourse(parent_id);
     course.course_groups = course.course_groups.filter(g => g.group_id != group_id);
-    mainCalendar.getEvents().forEach(e => {
-        if (e._def.publicId == parent_id && e._def.groupId == group_id)
-            e.remove();
-    });
+    if (typeof mainCalendar != 'undefined')
+        mainCalendar.getEvents().forEach(e => {
+            if (e._def.publicId == parent_id && e._def.groupId == group_id)
+                e.remove();
+        });
     Array.from(document.getElementsByClassName('group')).filter(c => c.getAttribute('group-id') == group_id).forEach(cE => cE.remove());
 }
 
@@ -280,5 +282,3 @@ class schedule {
         </li>`;
     }
 }
-
-// module.exports = { course, group, schedule };

@@ -1,5 +1,4 @@
 async function readConfigFile(configPath, fileName) {
-    // return fs.readFileSync(path.join(configPath, fileName), 'utf-8');
     return await loadFile(configPath + '/' + fileName);
 }
 

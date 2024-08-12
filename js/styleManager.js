@@ -94,10 +94,19 @@ function changeDarkModeIcon() {
         document.getElementById('dark-mode-icon').innerHTML = isDarkMode ? lightModeIcon : darkModeIcon;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('toggle-dark-mode'))
-        // document.getElementById('toggle-dark-mode').innerText = isDarkMode ? 'Light Mode' : 'Dark Mode';
-    changeDarkModeIcon();
-});
-
 applyStyle(isDarkMode ? darkMode : lightMode);
+
+function loadHeader() {
+    fetch(`${!location.pathname.startsWith('/html/') ? '/html/' : ''}header.html`)
+        .then(response => response.text())
+        .then(data => {
+            const body = document.querySelector('body');
+            if (body) body.insertAdjacentHTML('afterbegin', data);
+            if (document.getElementById('toggle-dark-mode'))
+                // document.getElementById('toggle-dark-mode').innerText = isDarkMode ? 'Light Mode' : 'Dark Mode';
+                changeDarkModeIcon();
+        })
+        .catch(error => console.error('Error loading header:', error));
+}
+
+loadHeader();
