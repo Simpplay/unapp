@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
       right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
     },
     footerToolbar: {
-      left: 'fix download addManualEvent',
+      left: 'fix download addManualEvent removeManualEvent',
       right: 'prev,next today'
     },
     selectable: true,
@@ -72,6 +72,16 @@ document.addEventListener('DOMContentLoaded', function () {
   addEventIcon.className = 'fas solid';
   addEventIcon.innerHTML = '';
   addEventButton.appendChild(addEventIcon);
+
+  // Add remove event button
+  const removeEventButton = document.getElementsByClassName('fc-removeManualEvent-button')[0];
+  removeEventButton.onclick = () => {
+    deleteAction();
+  }
+  const removeEventIcon = document.createElement('i');
+  removeEventIcon.className = 'fas solid';
+  removeEventIcon.innerHTML = '';
+  removeEventButton.appendChild(removeEventIcon);
 
   // Add download button
   const downloadButton = document.getElementsByClassName('fc-download-button')[0];
@@ -277,7 +287,11 @@ function addAction() {
 
 
 function deleteAction() {
-  if (last_clicked_event === null || !selected_university) return;
+  if (!selected_university) return;
+  if (last_clicked_event === null) {
+    Swal.fire('No se ha seleccionado un evento');
+    return;
+  }
   last_clicked_event.event.remove();
   selected_university.actual_configuration['free_time'] = selected_university.actual_configuration['free_time'].filter(f => f.id != last_clicked_event.event.id);
   resetActionVariables();
