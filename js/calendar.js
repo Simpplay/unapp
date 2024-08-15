@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
       right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
     },
     footerToolbar: {
-      left: 'fix download',
+      left: 'fix download addManualEvent',
       right: 'prev,next today'
     },
     selectable: true,
@@ -62,6 +62,16 @@ document.addEventListener('DOMContentLoaded', function () {
   fixButton.onclick = () => {
     fixCalendar();
   };
+
+  // Add add event button
+  const addEventButton = document.getElementsByClassName('fc-addManualEvent-button')[0];
+  addEventButton.onclick = () => {
+    addAction();
+  }
+  const addEventIcon = document.createElement('i');
+  addEventIcon.className = 'fas solid';
+  addEventIcon.innerHTML = '';
+  addEventButton.appendChild(addEventIcon);
 
   // Add download button
   const downloadButton = document.getElementsByClassName('fc-download-button')[0];
@@ -185,14 +195,14 @@ var last_clicked_event = null;
 
 // Add or edit
 function addAction() {
-  if (!selected_university || !last_event_selected) return;
+  if (!selected_university) return;
   if (!selected_university.actual_configuration['free_time']) {
     selected_university.actual_configuration['free_time'] = [];
   }
 
-  const originalStart = moment(last_event_selected.startStr).format('HH:mm');
-  const originalEnd = moment(last_event_selected.endStr).format('HH:mm');
-  const day = moment(last_event_selected.startStr).format('d');
+  const originalStart = last_event_selected ? moment(last_event_selected.startStr).format('HH:mm') : '00:00';
+  const originalEnd = last_event_selected ? moment(last_event_selected.endStr).format('HH:mm') : '00:00';
+  const day = last_event_selected ? moment(last_event_selected.startStr).format('d') : '1';
   const free_time = selected_university.actual_configuration['free_time'];
   const index = free_time.findIndex(f => f.start == originalStart && f.end == originalEnd && f.day == day);
 
@@ -213,6 +223,18 @@ function addAction() {
         <input id="event-color" type="color" class="swal2-input" placeholder="Color">
       </div>
       <div>
+        <label>Día:</label>
+        <select id="event-day" class="swal2-input">
+          <option value="1" ${day == '1' ? 'selected' : ''}>Lunes</option>
+          <option value="2" ${day == '2' ? 'selected' : ''}>Martes</option>
+          <option value="3" ${day == '3' ? 'selected' : ''}>Miércoles</option>
+          <option value="4" ${day == '4' ? 'selected' : ''}>Jueves</option>
+          <option value="5" ${day == '5' ? 'selected' : ''}>Viernes</option>
+          <option value="6" ${day == '6' ? 'selected' : ''}>Sábado</option>
+          <option value="0" ${day == '0' ? 'selected' : ''}>Domingo</option>
+        </select>
+      </div>
+      <div>
         <div>
           <label>Inicio:</label>
           <input id="event-start" type="time" class="swal2-input" value="${originalStart}">
@@ -230,12 +252,13 @@ function addAction() {
       const color = document.getElementById('event-color').value || '#000000';
       const start = document.getElementById('event-start').value || originalStart;
       const end = document.getElementById('event-end').value || originalEnd;
+      const day = document.getElementById('event-day').value || '1';
 
-      return { name, color, start, end };
+      return { name, color, start, end, day };
     }
   }).then((result) => {
     if (result.isConfirmed) {
-      const { name, color, start, end } = result.value;
+      const { name, color, start, end, day } = result.value;
 
       free_time.push({
         start: start,
