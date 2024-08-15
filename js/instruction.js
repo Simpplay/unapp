@@ -81,7 +81,6 @@ class instruction {
         // TODO: Generalize this
         if (requirementsRegex && !stop && !line.includes('¿Todas?')) {
             let req = requirementsRegex.exec(line);
-            console.log(req)
             if (req) {
                 if (req.length == 3) {
                     ret['requirements'][req[1]] = req[2];

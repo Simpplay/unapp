@@ -1,0 +1,103 @@
+/* Planner-specific styles */
+.planner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--container-bg-color);
+    box-shadow: var(--box-shadow);
+    border-radius: 8px;
+}
+
+.semesters-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    /* Gap between semesters */
+    width: 100%;
+}
+
+.semester {
+    flex: 1 1 calc(33.333% - 20px);
+    /* Three columns with gap consideration */
+    min-width: 300px;
+    /* Ensures minimum width for readability */
+    padding: 15px;
+    background-color: var(--other-bg-color);
+    border: 1px solid var(--other-border-color);
+    border-radius: 8px;
+}
+
+.semester h2 {
+    margin: 0 0 10px;
+    font-size: 20px;
+    color: var(--other-font-color);
+}
+
+.course {
+    margin-bottom: 10px;
+    padding: 15px;
+    background-color: var(--container-bg-color);
+    border: 1px solid var(--other-border-color);
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+}
+
+.course h3 {
+    margin: 0 0 5px;
+    font-size: 18px;
+    color: var(--button-bg-color);
+}
+
+.course p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: var(--other-light-font-color);
+}
+
+.course:hover {
+    background-color: var(--other-hover-color);
+    border-color: var(--other-hover-border-color);
+}
+
+@media (max-width: 1000px) {
+    .planner-container {
+        padding: 15px;
+    }
+
+    .semesters-wrapper {
+        flex-direction: column;
+    }
+
+    .semester {
+        flex: 1 1 100%;
+        /* Stack vertically on smaller screens */
+        min-width: 100%;
+        /* Full width on smaller screens */
+    }
+}
+
+@media (max-width: 768px) {
+    .planner-container {
+        padding: 10px;
+    }
+
+    .semester {
+        padding: 8px;
+    }
+
+    .course {
+        padding: 8px;
+    }
+
+    .course h3 {
+        font-size: 14px;
+    }
+
+    .course p {
+        font-size: 10px;
+    }
+}

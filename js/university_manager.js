@@ -225,7 +225,10 @@ async function onUniversitySelected() {
     }
     cleanCourseList();
     if (typeof mainCalendar != 'undefined') mainCalendar.getEvents().forEach(e => e.remove());
-    if (selected_university) selected_university.populateCourseList();
+    if (selected_university) {
+        selected_university.populateCourseList();
+        loadBackgroundEvents();
+    }
     if (selected_university && typeof mainCalendar != 'undefined') selected_university.courses.forEach(c => updateCalendarEvent(c));
     if (typeof planner_on_university_change === 'function') planner_on_university_change();
 }
@@ -344,7 +347,9 @@ class university {
                         };
                     });
                 }
-            })
+            }).then((result) => {
+                li.style.backgroundColor = (c.isDisabled()) ? '#808080' : c.color;
+            });
         }
 
         list.appendChild(li);
@@ -406,7 +411,7 @@ class university {
         this.actualCombination = index;
 
         // Clear existing events
-        this.allEvents.forEach(e => e.remove());
+        this.allEvents.forEach(e => (e.display !== 'background') ? e.remove() : null);
         this.allEvents = [];
 
         // Add new events for the selected combination
@@ -416,14 +421,11 @@ class university {
 
             calendarEvents.forEach(e => {
                 const newEvent = mainCalendar.addEvent(e);
+                console.log('newEvent:', newEvent)
                 this.allEvents.push(newEvent);
             });
         });
-
-        // Set calendar date to the first event date
-        const cE = moment(getCalendarEvents()[0][0].startRecur);
-        cE.add(10, 'days');
-        mainCalendar.gotoDate(cE.format());
+        fixCalendar();
     }
 
 

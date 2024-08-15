@@ -1,66 +1,82 @@
-async function planner_on_university_change() {
-    const allCoursesList = document.getElementsByClassName('all-courses-list');
-    if (allCoursesList) {
-        allCoursesList.innerHTML = '';
-
-        const courses = selected_university.courses;
-        console.log(courses)
-        const sortedCourses = topologicalSortCourses(courses);
-        console.log(sortedCourses)
-        renderCourses(sortedCourses);
-
-        /*selected_university.courses.forEach((c) => {
-            console.log(c)
-            const li = document.createElement('li');
-            li.innerHTML = course.getAsHTML(c);
-            Array.from(allCoursesList).forEach(e => {
-                console.log(e)
-                e.appendChild(li);
-            });
-        });*/
-    }
-}
-
-function topologicalSortCourses(courses) {
+function topologicalSortCoursesBySemester(courses) {
     let visited = new Set();
-    let stack = [];
+    let semesterMap = new Map();
 
     function visit(c) {
-        if (!visited.has(c.course_id)) {
-            visited.add(c.course_id);
+        if (visited.has(c.course_id)) {
+            return semesterMap.get(c.course_id);
+        }
 
-            for (let prereq_id in c.requirements) {
-                let prereq = courses.find(c => c.course_id === prereq_id);
+        visited.add(c.course_id);
 
-                if (!prereq) {
-                    prereq = new course(c.requirements[prereq_id], prereq_id);
-                    courses.push(prereq);
-                }
-                visit(prereq);
+        // Initialize the semester for this course
+        let maxPrereqSemester = 0;
+
+        for (let prereq_id in c.requirements) {
+            let prereq = courses.find(c => {
+                return c.course_id === prereq_id || (c.requirements[prereq_id] && c.course_name.toUpperCase() == c.requirements[prereq_id].toUpperCase())
+            });
+
+            if (!prereq) {
+                console.warn(`Prerequisite course ${prereq_id} not found for course ${c.course_id}.`);
+                // If the prerequisite course is not found, create a placeholder course.
+                prereq = new course(c.requirements[prereq_id], prereq_id);
+                courses.push(prereq);
             }
 
-            stack.push(c);
+            // Recursively visit prerequisites to find the semester level
+            maxPrereqSemester = Math.max(maxPrereqSemester, visit(prereq) + 1);
         }
+
+        // Assign the course to the correct semester
+        semesterMap.set(c.course_id, maxPrereqSemester);
+
+        return maxPrereqSemester;
     }
 
-    courses.forEach(course => visit(course));
-    return stack.reverse();
+    // Visit all courses to populate the semesterMap
+    courses.forEach(c => visit(c));
+
+    // Group courses by their semester in a sorted manner
+    let semesters = [];
+    semesterMap.forEach((semester, course_id) => {
+        if (!semesters[semester]) {
+            semesters[semester] = [];
+        }
+        semesters[semester].push(courses.find(c => c.course_id === course_id));
+    });
+
+    return semesters.filter(Boolean); // Filter out undefined entries
 }
 
-function renderCourses(courses) {
+function renderCoursesBySemester(semesters) {
     let container = document.getElementById('courseContainer');
     container.innerHTML = '';
 
-    courses.forEach(course => {
-        let courseDiv = document.createElement('div');
-        courseDiv.classList.add('course');
-        courseDiv.style.borderColor = course.color;
-        courseDiv.innerHTML = `
-            <h3>${course.course_name} (${course.course_id})</h3>
-            <p>Credits: ${course.course_credits}</p>
-            <p>Groups: ${course.course_groups.join(', ')}</p>
-            <p>Requirements: ${Object.values(course.requirements).join(', ') || 'None'}</p>
-        `;
-        container.appendChild(courseDiv);
+    semesters.forEach((semester, index) => {
+        let semesterDiv = document.createElement('div');
+        semesterDiv.classList.add('semester');
+        semesterDiv.innerHTML = `<h2>Semester ${index + 1}</h2>`;
+
+        semester.forEach(course => {
+            let courseDiv = document.createElement('div');
+            courseDiv.classList.add('course');
+            courseDiv.style.borderColor = course.color;
+            courseDiv.innerHTML = `
+                <h3>${course.course_name} (${course.course_id})</h3>
+                <p>Credits: ${course.course_credits}</p>
+                <p>Groups: ${course.course_groups.length}</p>
+                <p>Requirements: ${Object.values(course.requirements).join(', ') || 'None'}</p>
+            `;
+            semesterDiv.appendChild(courseDiv);
+        });
+
+        container.appendChild(semesterDiv);
     });
+}
+
+async function planner_on_university_change() {
+    const courses = selected_university.courses;
+    const semesters = topologicalSortCoursesBySemester(courses);
+    renderCoursesBySemester(semesters);
 }

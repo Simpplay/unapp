@@ -55,12 +55,15 @@
       </button>
     </div>
     <div class="combinationContainer">
+      <div id="combinationCounter"></div>
       <div class="combination-button-group">
+        <button id="deleteCombinations">
+          <i class="fas"></i>
+        </button>
         <button id="prevCombination">
           <i class="fas solid fa-backward"></i>
         </button>
         <div class="generate-wrapper">
-          <div id="combinationCounter"></div>
           <button id="generateCombination">Generar</button>
         </div>
         <button id="nextCombination">
@@ -79,7 +82,11 @@
   <div class="calendarContainer">
     <div class="calendar"></div>
   </div>
+  <div id="event-popup" class="event-popup" style="display: none;">
+    <div class="icon fas solid" onclick="addAction()"></div>
+    <div class="icon fas solid" onclick="deleteAction()"></div>
+    <div class="icon fas solid" onclick="modifyAction()"></div>
+  </div>
 </body>
-
 
 </html>

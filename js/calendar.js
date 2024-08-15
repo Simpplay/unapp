@@ -15,21 +15,40 @@ document.addEventListener('DOMContentLoaded', function () {
       left: 'fix download',
       right: 'prev,next today'
     },
+    selectable: true,
+    selectMinDistance: 1,
+    unselectAuto: false,
+    selectMirror: false,
     dayMaxEvents: true, // allow "more" link when too many events,
     eventClick: function (info) {
-      const c = selected_university.getCourse(info.event.id);
-      const g = c.getGroup(info.event.groupId);
-      Swal.fire({
-        title: info.event.title,
-        html: `
+      if (info.event.display == 'background') {
+        last_clicked_event = info;
+        showFreeTimeOptions(info.jsEvent.clientX, info.jsEvent.clientY);
+      } else {
+        const c = selected_university.getCourse(info.event.id);
+        const g = c.getGroup(info.event.groupId);
+        Swal.fire({
+          title: info.event.title,
+          html: `
             ${info.event.id ? `<p>ID: ${info.event.id}</p>` : ''}
             ${g.course_teacher ? `<p>Profesor: ${g.course_teacher}</p>` : ''}
             ${g.classroom ? `<p>Salón: ${g.classroom}</p>` : ''}
             ${info.event.start ? `<p>Inicio: ${moment(info.event.start).format('DD/MM/YYYY HH:mm')}</p>` : ''}
             ${info.event.end ? `<p>Fin: ${moment(info.event.end).format('DD/MM/YYYY HH:mm')}</p>` : ''}
           `,
-        showCloseButton: true
-      });
+          showCloseButton: true
+        });
+      }
+    },
+    select: function (info) {
+      if (typeof selected_university == 'undefined' || !selected_university) {
+        mainCalendar.unselect()
+        return;
+      }
+
+      loadBackgroundEvents();
+      showFreeTimeOptions(info.jsEvent.clientX, info.jsEvent.clientY);
+      last_event_selected = info;
     },
   });
   mainCalendar.render();
@@ -41,13 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
   fixIcon.innerHTML = '';
   fixButton.appendChild(fixIcon);
   fixButton.onclick = () => {
-    const calendarEvents = getCalendarEvents();
-    if (calendarEvents && calendarEvents.length > 0) {
-      const cE = moment(calendarEvents[0][0].startRecur);
-      cE.add(10, 'days');
-      mainCalendar.gotoDate(cE.format());
-    }
-    else Swal.fire('No hay elementos en el calendario');
+    fixCalendar();
   };
 
   // Add download button
@@ -91,7 +104,6 @@ document.addEventListener('DOMContentLoaded', function () {
         minTime = eventStartTime;
       }
     });
-    console.log(minTime)
     mainCalendar.setOption('slotMinTime', minTime);
 
     mainCalendar.updateSize();
@@ -120,12 +132,269 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }, 100);  // Adjust the delay as needed to ensure styles are applied
   };
-
-
 });
+
+function fixCalendar() {
+  const calendarEvents = getCalendarEvents();
+  if (calendarEvents && calendarEvents.length > 0) {
+    calendarEvents.sort((a, b) => {
+      return (moment(a[0].startRecur).format('DD') * moment(a[0].startRecur).format('MM')) - (moment(b[0].startRecur).format('DD') * moment(b[0].startRecur).format('MM'));
+    });
+    const cE = moment(calendarEvents[calendarEvents.length - 1][0].startRecur).add(10, 'days');
+    const currentDate = mainCalendar.getDate();
+    const diffInDays = Math.abs(cE.diff(currentDate, 'days'));
+    if (diffInDays > 10) {
+      mainCalendar.gotoDate(cE.format());
+    }
+  } else {
+    Swal.fire('No hay elementos en el calendario');
+  }
+}
+
+function showFreeTimeOptions(cursorX, cursorY) {
+  // Show the popup
+  const popup = document.getElementById('event-popup');
+  popup.style.display = 'block';
+
+  popup.style.left = (cursorX - (popup.clientWidth / 2)) + 'px';
+  popup.style.top = cursorY + 'px';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const popup = document.getElementById('event-popup');
+  document.addEventListener('click', function (event) {
+    if (!popup.contains(event.target) && !event.target.className.includes('fc-event')) {
+      hideActions();
+    }
+  });
+});
+
+function hideActions() {
+  document.getElementById('event-popup').style.display = 'none';
+  mainCalendar.unselect();
+}
+
+function resetActionVariables() {
+  last_event_selected = null;
+  last_clicked_event = null;
+  hideActions();
+}
+
+var last_event_selected = null;
+var last_clicked_event = null;
+
+// Add or edit
+function addAction() {
+  if (!selected_university || !last_event_selected) return;
+  if (!selected_university.actual_configuration['free_time']) {
+    selected_university.actual_configuration['free_time'] = [];
+  }
+
+  const originalStart = moment(last_event_selected.startStr).format('HH:mm');
+  const originalEnd = moment(last_event_selected.endStr).format('HH:mm');
+  const day = moment(last_event_selected.startStr).format('d');
+  const free_time = selected_university.actual_configuration['free_time'];
+  const index = free_time.findIndex(f => f.start == originalStart && f.end == originalEnd && f.day == day);
+
+  if (index !== -1) {
+    Swal.fire('Ya existe este rango de tiempo');
+    return;
+  }
+
+  Swal.fire({
+    title: 'Ingrese los detalles',
+    html: `
+      <div>
+        <label>Nombre:</label>
+        <input id="event-name" class="swal2-input" placeholder="Nombre" value="Tiempo Libre">
+      </div>
+      <div>
+        <label>Color:</label>
+        <input id="event-color" type="color" class="swal2-input" placeholder="Color">
+      </div>
+      <div>
+        <div>
+          <label>Inicio:</label>
+          <input id="event-start" type="time" class="swal2-input" value="${originalStart}">
+        </div>
+        <div>
+          <label>Fin:</label>
+          <input id="event-end" type="time" class="swal2-input" value="${originalEnd}">
+        </div>
+      </div>
+    `,
+    focusConfirm: false,
+    showCancelButton: true,
+    preConfirm: () => {
+      const name = document.getElementById('event-name').value || 'Tiempo Libre';
+      const color = document.getElementById('event-color').value || '#000000';
+      const start = document.getElementById('event-start').value || originalStart;
+      const end = document.getElementById('event-end').value || originalEnd;
+
+      return { name, color, start, end };
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const { name, color, start, end } = result.value;
+
+      free_time.push({
+        start: start,
+        end: end,
+        day: day,
+        name: name,
+        color: color,
+        id: newUUID()
+      });
+
+      loadBackgroundEvents();
+      resetActionVariables();
+    }
+  });
+}
+
+
+function deleteAction() {
+  if (last_clicked_event === null || !selected_university) return;
+  last_clicked_event.event.remove();
+  selected_university.actual_configuration['free_time'] = selected_university.actual_configuration['free_time'].filter(f => f.id != last_clicked_event.event.id);
+  resetActionVariables();
+}
+
+function modifyAction() {
+  if (!selected_university || !last_clicked_event) return;
+
+  const free_time = selected_university.actual_configuration['free_time'];
+  const eventIndex = free_time.findIndex(f => f.id == last_clicked_event.event.id);
+
+  if (eventIndex === -1) {
+    Swal.fire('No se encontró el evento seleccionado');
+    return;
+  }
+
+  const event = free_time[eventIndex];
+
+  Swal.fire({
+    title: 'Modificar Evento',
+    html: `
+      <input id="event-name" class="swal2-input" placeholder="Nombre" value="${event.name}">
+      <input id="event-color" type="color" class="swal2-input" value="${event.color}">
+      <label>Inicio:</label>
+      <input id="event-start" type="time" class="swal2-input" value="${event.start}">
+      <label>Fin:</label>
+      <input id="event-end" type="time" class="swal2-input" value="${event.end}">
+    `,
+    focusConfirm: false,
+    showCancelButton: true,
+    preConfirm: () => {
+      const name = document.getElementById('event-name').value || event.name;
+      const color = document.getElementById('event-color').value || event.color;
+      const start = document.getElementById('event-start').value || event.start;
+      const end = document.getElementById('event-end').value || event.end;
+
+      return { name, color, start, end };
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const { name, color, start, end } = result.value;
+
+      // Update the event with the new values
+      free_time[eventIndex] = {
+        ...event,
+        name: name,
+        color: color,
+        start: start,
+        end: end
+      };
+
+      loadBackgroundEvents();
+      resetActionVariables();
+    }
+  });
+}
+
+function loadBackgroundEvents() {
+  if (typeof mainCalendar == "undefined" || !selected_university) return;
+  mainCalendar.getEvents().forEach(e => {
+    if (e.display === 'background') e.remove();
+  });
+
+  const businessHours = []
+
+  const range = selected_university.actual_configuration['range'];
+  if (range) {
+    businessHours.push({
+      daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
+      startTime: range.start,
+      endTime: range.end
+    })
+  }
+
+  const lunch_time = selected_university.actual_configuration['lunch_time'];
+  if (lunch_time && (lunch_time.start != '00:00' || lunch_time.end != '00:00')) {
+    businessHours.push({
+      daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
+      startTime: lunch_time.start,
+      endTime: lunch_time.end
+    });
+  }
+
+  const splitBusinessHours = (businessHours) => {
+    let splitHours = [];
+
+    businessHours.forEach((hours, index) => {
+      const startTime = moment(hours.startTime, 'HH:mm');
+      const endTime = moment(hours.endTime, 'HH:mm');
+
+      // Handle the first set of business hours
+      if (index === 0) {
+        splitHours.push(hours);
+      } else {
+        let lastHours = splitHours[splitHours.length - 1];
+        let lastEndTime = moment(lastHours.endTime, 'HH:mm');
+
+        // Check if the current start time is within the last business hour's range
+        if (startTime.isBefore(lastEndTime)) {
+          // Adjust the last business hour to end where the overlap starts
+          lastHours.endTime = startTime.format('HH:mm');
+
+          // Add a new business hour for the remaining time after the overlap
+          splitHours.push({
+            daysOfWeek: hours.daysOfWeek,
+            startTime: endTime.isBefore(lastEndTime) ? endTime.format('HH:mm') : lastEndTime.format('HH:mm'),
+            endTime: endTime.isBefore(lastEndTime) ? lastEndTime.format('HH:mm') : endTime.format('HH:mm')
+          });
+        } else {
+          // If there's no overlap, just add the current hours
+          splitHours.push(hours);
+        }
+      }
+    });
+
+    return splitHours;
+  };
+
+  mainCalendar.setOption('businessHours', splitBusinessHours(businessHours));
+
+  const free_time = selected_university.actual_configuration['free_time'];
+  if (free_time && free_time.length > 0) free_time.forEach(f => {
+    mainCalendar.addEvent({
+      title: f.name,
+      daysOfWeek: [f.day],
+      startTime: f.start,
+      endTime: f.end,
+      startRecur: moment().subtract(1, 'y').format(),
+      endRecur: moment().add(1, 'y').format(),
+      id: f.id,
+      groupId: 'manual_event',
+      display: 'background',
+      backgroundColor: f.color
+    });
+  });
+}
 
 function updateCalendarEvent(c) {
   removeCalendarEventsFromCourse(c);
+  loadBackgroundEvents();
   c.course_groups.forEach(g => {
     var groupSchedule = [];
     g.schedule.forEach(s => {

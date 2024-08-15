@@ -7,6 +7,7 @@ function changeGroupColor(course_id, color) {
 }
 
 function deleteCourse(course_id) {
+    if (DEBUG) console.log('Deleting course: ', course_id);
     selected_university.removeCourse(course_id);
     if (typeof mainCalendar != 'undefined')
         mainCalendar.getEvents().forEach(e => {
@@ -110,6 +111,10 @@ class course {
         this.requirements = variables['requirements'];
         return remaining;
     }
+
+    isDisabled() {
+        return this.course_groups.every(g => g.disabled);
+    }
 }
 
 function deleteGroup(group_id, parent_id) {
@@ -159,10 +164,10 @@ class group {
     disableGroup(dontChange = false) {
         if (!dontChange) this.disabled = !this.disabled;
         const setBackgroundColor = (e) => {
-            e.style.backgroundColor = this.getColor();
             Array.from(e.children).forEach(child => {
                 setBackgroundColor(child);
             });
+            e.style.backgroundColor = this.getColor();
         }
 
         Array.from(document.getElementsByClassName('group')).filter(c => c.getAttribute('group-id') == this.group_id).forEach(gE => {

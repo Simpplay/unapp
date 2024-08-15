@@ -114,6 +114,23 @@
     background-color: var(--button-hover-color);
 }
 
+.event-popup {
+    position: absolute;
+    background-color: var(--settings-bg-color);
+    border: 1px solid var(--settings-border-color);
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: var(--box-shadow);
+    z-index: 1000;
+}
+
+.event-popup .icon {
+    display: inline-block;
+    margin: 5px;
+    cursor: pointer;
+    font-size: 24px;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .fc-toolbar {

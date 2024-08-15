@@ -98,11 +98,12 @@ function addListenersToCombinationUI() {
             Swal.fire('Seleccione una universidad');
             return;
         }
-        const courses = selected_university.courses;
+        var courses = selected_university.courses;
         if (courses.length === 0) {
-            Swal.fire('No hay cursos seleccionados');
+            Swal.fire('No hay cursos disponibles');
             return;
         }
+        courses = courses.filter(c => !c.isDisabled())
         const combinations = Combination.generateCombinationsFromCourses(courses, selected_university.actual_configuration);
         if (combinations.length === 0) {
             Swal.fire('No hay combinaciones validas');
@@ -115,6 +116,31 @@ function addListenersToCombinationUI() {
         });
         selected_university.combinations = combinations;
         selected_university.goToCombination(0);
+    });
+
+    document.getElementById('deleteCombinations').addEventListener('click', () => {
+        if (!selected_university) {
+            Swal.fire('Seleccione una universidad');
+            return;
+        }
+        if (selected_university.courses.length === 0) {
+            Swal.fire('No hay grupos para borrar');
+            return;
+        }
+        Swal.fire({
+            title: '¿Está seguro que desea eliminar todos los grupos?',
+            showCancelButton: true,
+            confirmButtonText: 'Si',
+            cancelButtonText: 'No',
+            icon: 'warning'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                selected_university.courses.forEach(c => {
+                    deleteCourse(c.course_id);
+                })
+                Swal.fire('Grupos eliminados', '', 'success');
+            }
+        });
     });
 
 
@@ -149,6 +175,7 @@ function addListenersToCombinationUI() {
             html: getCombinationSettingsHTML(selected_university.actual_configuration),
             willClose: () => {
                 if (DEBUG) console.log(selected_university.actual_configuration)
+                loadBackgroundEvents();
             }
         })
     });
@@ -226,4 +253,10 @@ function dayIntFromSunday(schedule_day) {
 function translateDay(schedule_day) {
     // Return the corresponding translation for the given schedule_day
     return daysTranslated[schedule_day.toLowerCase()];
+}
+
+function newUUID() {
+    return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
+        (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
+    );
 }

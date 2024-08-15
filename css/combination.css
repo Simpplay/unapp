@@ -18,6 +18,7 @@
 }
 
 /* Styling for the prev, next, and settings buttons */
+button#deleteCombinations,
 button#prevCombination,
 button#nextCombination,
 button#combinationSettings {
@@ -52,14 +53,15 @@ button#generateCombination {
 /* Center the combination counter text */
 #combinationCounter {
     font-size: 1em;
-    margin-bottom: 5px;
+    margin-top: 10px;
     /* Adjusts the spacing between the counter and button */
 }
 
 /* Hover effects */
 button#prevCombination:hover,
 button#nextCombination:hover,
-button#combinationSettings:hover {
+button#combinationSettings:hover,
+button#deleteCombinations:hover {
     background-color: var(--other-hover-color);
     border-color: var(--other-hover-border-color);
 }
@@ -111,7 +113,7 @@ button#combinationSettings:hover {
     box-shadow: 0 0 3px var(--button-bg-color);
 }
 
-.setting-group input[type="checkbox"] + label {
+.setting-group input[type="checkbox"]+label {
     display: inline-block;
     font-weight: normal;
 }
@@ -120,18 +122,18 @@ button#combinationSettings:hover {
     cursor: pointer;
 }
 
-.combination-settings input[type="checkbox"]:checked + input[type="number"],
-.combination-settings input[type="checkbox"]:checked + input[type="time"] {
+.combination-settings input[type="checkbox"]:checked+input[type="number"],
+.combination-settings input[type="checkbox"]:checked+input[type="time"] {
     background-color: var(--container-bg-color);
 }
 
-.setting-group input[type="checkbox"] + input[type="number"],
-.setting-group input[type="checkbox"] + input[type="time"] {
+.setting-group input[type="checkbox"]+input[type="number"],
+.setting-group input[type="checkbox"]+input[type="time"] {
     margin-left: 25px;
     margin-top: 5px;
 }
 
-.setting-group input[type="checkbox"] + input:disabled {
+.setting-group input[type="checkbox"]+input:disabled {
     background-color: var(--disabled-bg-color);
 }
 
@@ -139,7 +141,7 @@ button#combinationSettings:hover {
     .combination-settings {
         padding: 15px;
     }
-    
+
     .setting-group input[type="time"],
     .setting-group input[type="number"] {
         width: 100%;
@@ -171,7 +173,7 @@ button#combinationSettings:hover {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.days-group input[type="checkbox"]:checked + label {
+.days-group input[type="checkbox"]:checked+label {
     background-color: var(--button-bg-color);
     color: var(--container-bg-color);
 }
