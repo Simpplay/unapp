@@ -1,7 +1,3 @@
-async function readConfigFile(configPath, fileName) {
-    return await loadFile(configPath + '/' + fileName);
-}
-
 function parseConfig(content) {
     return new Promise((resolve, reject) => {
         const lines = content.split('\n');
@@ -22,10 +18,6 @@ function parseConfig(content) {
     });
 }
 
-async function handleConfig(configPath, fileName) {
-    const content = await readConfigFile(configPath, fileName);
-    return parseConfig(content);
-}
 
 
 function addCourse(inputText) {

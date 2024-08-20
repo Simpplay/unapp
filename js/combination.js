@@ -4,8 +4,8 @@
     * lunch_time: time that the student has lunch {start, end}
     * max_courses_per_day: maximum number of courses per day
     * max_holes_per_day: maximum number of holes per day
-    * hole_ammount: maximum number of holes
     * range: range of hours that the student is available {start, end}
+    * free_time: list of free time that the student has {day, start, end}
 */
 
 const default_combination_configurations = {

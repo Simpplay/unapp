@@ -1,17 +1,6 @@
 const DEBUG = false;
 
-// Synchronously read a text file from the web server
-// From: https://stackoverflow.com/a/41133213
-async function loadFile(filePath) {
-    var result = null;
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.open("GET", filePath, false);
-    xmlhttp.send();
-    if (xmlhttp.status == 200) {
-        result = xmlhttp.responseText;
-    }
-    return result;
-}
+
 
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {

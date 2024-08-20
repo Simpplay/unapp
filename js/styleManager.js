@@ -23,6 +23,7 @@ const darkMode = {
     /* Setting Colors */
     '--settings-border-color': '#5f6368',
     '--settings-bg-color': '#202124',
+    '--fc-neutral-bg-color': 'hsl(0deg 66.91% 3.83% / 78%)',
 
     /* General colors */
     '--page-bg-color': '#202124',
@@ -56,6 +57,7 @@ const lightMode = {
     /* Setting Colors */
     '--settings-border-color': '#ccc',
     '--settings-bg-color': '#f9f9f9',
+    '--fc-neutral-bg-color': 'hsl(208.21deg 81.58% 66.34% / 44%)',
 
     /* General colors */
     '--page-bg-color': '#f4f4f4',
@@ -103,7 +105,6 @@ function loadHeader() {
             const body = document.querySelector('body');
             if (body) body.insertAdjacentHTML('afterbegin', data);
             if (document.getElementById('toggle-dark-mode'))
-                // document.getElementById('toggle-dark-mode').innerText = isDarkMode ? 'Light Mode' : 'Dark Mode';
                 changeDarkModeIcon();
         })
         .catch(error => console.error('Error loading header:', error));

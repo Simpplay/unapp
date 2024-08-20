@@ -255,7 +255,7 @@ class university {
 
     async initialize(id, isManual = false) {
         if (!isManual) {
-            const conf = await handleConfig(universitiesPath, id);
+            const conf = await parseConfig(await loadFile(universitiesPath + '/' + id));
             this.name = conf.name;
             this.instructions = conf.instructions;
         }

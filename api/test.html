@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <div class="params">
+        <input type="text" class="paramName" placeholder="Parameter Name">
+        <textarea type="text" class="paramValue" placeholder="Parameter Value"></textarea>
+    </div>
+
+    <div>
+        <input type="button" value="Add" id="addBtn">
+        <select id="apiSelect">
+            <option value="ReadCourse">ReadCourse</option>
+            <option value="GenerateCombinations">GenerateCombinations</option>
+            <option value="GetUniversity">GetUniversity</option>
+            <option value="GetFile">GetFile</option>
+        </select>
+        <input type="button" value="Submit" id="sendBtn">
+        <input type="button" value="Copy" id="copyBtn">
+    </div>
+
+    <script type="module">
+        // API's modules. Each module is a class that extends the API class. Called using response method.
+        import { ReadCourse } from './modules/readCourse.js';
+        import { GenerateCombinations } from './modules/generateCombinations.js';
+        import { GetUniversity } from './modules/getUniversity.js';
+        import { GetFile } from './modules/getFile.js';
+
+        const params = [];
+
+        document.getElementById('sendBtn').onclick = async function () {
+            const selectedApi = document.getElementById('apiSelect').value;
+            let apiInstance;
+
+            const paramObject = {};
+            params.forEach(param => {
+                paramObject[param.name] = param.value;
+            });
+
+            switch (selectedApi) {
+                case 'ReadCourse':
+                    apiInstance = new ReadCourse(paramObject);
+                    break;
+                case 'GenerateCombinations':
+                    apiInstance = new GenerateCombinations(paramObject);
+                    break;
+                case 'GetUniversity':
+                    apiInstance = new GetUniversity(paramObject);
+                    break;
+                case 'GetFile':
+                    apiInstance = new GetFile(paramObject);
+                    break;
+                default:
+                    alert('Invalid API selected');
+                    return;
+            }
+
+            try {
+                const response = await apiInstance.response();
+                document.getElementById('output').innerText = JSON.parse(JSON.stringify(response, null, 2));
+            } catch (error) {
+                console.error(error);
+                document.getElementById('output').innerText = 'Error: ' + error.message;
+            }
+        };
+
+        document.getElementById('addBtn').onclick = function () {
+            const paramName = document.querySelector('.paramName').value;
+            const paramValue = document.querySelector('.paramValue').value;
+
+            if (paramName && paramValue) {
+                params.push({ name: paramName, value: paramValue });
+
+                // Clear the input fields for next parameter entry
+                document.querySelector('.paramName').value = '';
+                document.querySelector('.paramValue').value = '';
+
+                // Display the added parameter for confirmation
+                const paramList = document.createElement('div');
+                paramList.innerText = `Added Parameter: ${paramName} = ${paramValue}`;
+                document.body.appendChild(paramList);
+            } else {
+                alert('Please provide both parameter name and value');
+            }
+        };
+
+        document.getElementById('copyBtn').onclick = function () {
+            const outputText = document.getElementById('output').innerText;
+
+            navigator.clipboard.writeText(outputText).then(function () {
+                alert('Output copied to clipboard!');
+            }, function (err) {
+                console.error('Failed to copy text: ', err);
+            });
+        };
+    </script>
+
+    <div id="output"></div>
+
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 20px;
+            padding: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        input[type="text"],
+        textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        /* Button Styles */
+        input[type="button"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        input[type="button"]:hover {
+            background-color: #45a049;
+        }
+
+        /* Select Box Styles */
+        select {
+            padding: 10px;
+            margin: 10px 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        /* Parameters Section */
+        .params {
+            margin-bottom: 20px;
+        }
+
+        /* Output Section */
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+
+        /* Added Parameter List */
+        #output+div {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e7f3e7;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+        }
+    </style>
+</body>
+
+</html>
