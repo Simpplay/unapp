@@ -7,6 +7,6 @@ id=udea
 %{next:#exact:HORARIO: }%=[func:nextSchedule()]&[var:schedule_time(func:parseDate(func:function(return "self".split(";")[0].match(/(\d{1,2})-(\d{1,2})/)[0].split("-").map(time => `${time}:00`).join("-"))))]
 %{next:#exact:HORARIO: }%=[var:schedule_day(func:function(return "self".split(";")[0].match(/[LMWJVSD]/g).map(char => ({L: "monday", M: "tuesday", W: "wednesday", J: "thursday", V: "friday", S: "saturday", D: "sunday"})[char]).join(", ")))]
 %{next:#exact:HORARIO: }%=[func:nextSchedule()]&[var:schedule_time(func:parseDate(func:function(try {return "self".split(";")[1].match(/(\d{1,2})-(\d{1,2})/)[0].split("-").map(time => `${time}:00`).join("-")} catch {})))]
-%{next:#exact:HORARIO: }%=[var:schedule_day(func:function(return "self".split(";")[0].match(/[LMWJVSD]/g).map(char => ({L: "monday", M: "tuesday", W: "wednesday", J: "thursday", V: "friday", S: "saturday", D: "sunday"})[char]).join(", ")))]
+%{next:#exact:HORARIO: }%=[var:schedule_day(func:function(try {return "self".split(";")[1].match(/[LMWJVSD]/g).map(char => ({L: "monday", M: "tuesday", W: "wednesday", J: "thursday", V: "friday", S: "saturday", D: "sunday"})[char]).join(", ")} catch {}))]
 %{next:#contains:CUPO DISPONIBLE: }%=[var:group_quota(self)]
 !%{next:#contains:PROFESOR(ES): }%=[var:group_teacher(self)]
