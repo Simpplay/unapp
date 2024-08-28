@@ -142,10 +142,17 @@ class action {
         if (this.constant) {
             return this.constant;
         } else if (this.funcArgs) {
-            var a = this.#getSpecificArgs(this.funcArgs).map(arg => new action(arg).getValue(self, ret).replaceAll('self', self).trimStart());
+            var a = this.#getSpecificArgs(this.funcArgs);
+            a = a.map(arg => {
+                var val = new action(arg).getValue(self, ret)
+                if (val === undefined) return undefined;
+                return val.replaceAll('self', self).trimStart();
+            });
+            a = a.filter(arg => arg !== undefined);
             if (typeof a === 'string') a = a.replaceAll(/'/g, "");
             else if (typeof a === 'object') a = a.map(arg => (typeof arg === 'string') ? arg.replaceAll(/'/g, "") : arg);
             if (!Object.values(Object.keys(default_functions.functions)).includes(this.funcName)) throw new Error('Function not found: ' + this.funcName);
+            if (default_functions.functions[this.funcName].length !== a.length + 1) return undefined;
             return default_functions.functions[this.funcName](ret, ...a);
         } else if (this.varName && this.varValue && !variablesDisabled) {
             const value = new action(this.varValue).getValue(self, ret);
