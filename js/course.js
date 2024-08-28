@@ -88,6 +88,7 @@ class course {
             console.log('Empty group detected: ', group);
             return;
         }
+        group.schedule = group.schedule.filter(s => s.schedule_day && s.schedule_time);
         group.parent_course_id = this.course_id;
         this.course_groups.push(group);
         updateCalendarEvent(this);
