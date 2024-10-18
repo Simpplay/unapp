@@ -175,6 +175,9 @@ class action {
                 const groupKey = `group_${actual_group}`;
                 let groupVar = getOrCreate(groupKey);
                 groupVar.value.push(r);
+                if (!groupVar.value.some(v => v.name === 'isLab')) {
+                    groupVar.value.push(new variable('isLab', isLab));
+                }
             }
             // Handle schedule variables
             else if (schedule.defaultVariables.hasOwnProperty(this.varName)) {
@@ -258,6 +261,7 @@ class variable {
 var actual_group = 0;
 var actual_schedule = 0;
 var stop = false;
+var isLab = false;
 var variablesDisabled = false;
 var requirementsRegex = undefined;
 
@@ -272,6 +276,7 @@ class default_functions {
         actual_schedule = 0;
         stop = false;
         variablesDisabled = false;
+        isLab = false;
     }
 
     static functions = {
@@ -328,6 +333,12 @@ class default_functions {
         },
         "getRandomNumber": (variables, min, max) => {
             return Math.floor(Math.random() * (max - min + 1) + min);
+        },
+        "changeLaboratorio": (variables) => {
+            isLab = true;
+        },
+        "changeTeorica": (variables) => {
+            isLab = false;
         },
         "stop": (variables) => {
             stop = true;
