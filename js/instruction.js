@@ -152,7 +152,8 @@ class action {
             if (typeof a === 'string') a = a.replaceAll(/'/g, "");
             else if (typeof a === 'object') a = a.map(arg => (typeof arg === 'string') ? arg.replaceAll(/'/g, "") : arg);
             if (!Object.values(Object.keys(default_functions.functions)).includes(this.funcName)) throw new Error('Function not found: ' + this.funcName);
-            if (default_functions.functions[this.funcName].length !== a.length + 1) return undefined;
+            // TODO: Fix this for unal and udea if (default_functions.functions[this.funcName].length !== a.length + 1) return undefined;
+            // return default_functions.functions[this.funcName](ret, ...a);
             return default_functions.functions[this.funcName](ret, ...a);
         } else if (this.varName && this.varValue && !variablesDisabled) {
             const value = new action(this.varValue).getValue(self, ret);
@@ -293,6 +294,7 @@ class default_functions {
         },
         "replace": (variables, text, search, replacement, ignore_errors = false) => {
             if ((!text || !search || !replacement) && ignore_errors) return '';
+
             replacement = this.organizeString(replacement);
             search = this.organizeString(search);
             if (DEBUG) console.log('replace: ' + '[' + text + '], [' + search + '], [' + replacement + '] = [' + text.replaceAll(search, replacement) + ']');
