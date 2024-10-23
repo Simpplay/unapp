@@ -155,7 +155,7 @@ class group {
         this.group_quota = group_quota;
         this.classroom = classroom;
         this.schedule = schedule;
-        this.disabled = false;
+        this.disabled = group_quota <= 0;
     }
 
     getColor() {
