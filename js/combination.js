@@ -210,7 +210,7 @@ class Combination {
         Object.keys(daysOfWeek).forEach(day => allSchedules[day] = []);
 
         groups.forEach(g => {
-            if (g.disabled || g.group_quota <= 0) score = -1000;
+            if (g.disabled) score = -1000;
             g.schedule.forEach(s => {
                 if (g.schedule_day in config.free_days) {
                     score -= pointsPerError.free_days;
